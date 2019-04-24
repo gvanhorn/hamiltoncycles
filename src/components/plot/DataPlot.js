@@ -4,6 +4,7 @@ import {PlotMenu} from "./PlotMenu";
 import styled from 'styled-components';
 import {PlotComponentHeader} from "./StyledPlotComponents";
 import {LoadScatterPlotDataComponent} from "./LoadScatterPlotDataComponent";
+import {LoadedScatterPlotDataList} from "./LoadedScatterPlotDataList";
 
 const Window = styled.div`
     width: 100%;
@@ -36,10 +37,26 @@ export class DataPlot extends Component {
             }
         ];
 
+        let testScatterData = algorithms[0];
+        testScatterData.graphSize = 16;
+        testScatterData.loaded = true;
+        testScatterData.visible = true;
+
+        let testScatterData2 = algorithms[1];
+        testScatterData2.graphSize = 24;
+        testScatterData2.loaded = true;
+        testScatterData2.visible = true;
+
+        let dummyLoadedData = [
+            testScatterData,
+            testScatterData2
+        ];
+
         this.state = {
             algorithms: algorithms,
             graphSizes: graphSizes,
-            lineTypes: lineTypes
+            lineTypes: lineTypes,
+            loadedScatterPlotData: dummyLoadedData
         }
     }
 
@@ -51,6 +68,7 @@ export class DataPlot extends Component {
                 </PlotCanvas>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms} graphSizes={this.state.graphSizes}/>
+                    <LoadedScatterPlotDataList loadedScatterPlotData={this.state.loadedScatterPlotData}/>
                 </PlotMenu>
             </Window>
         )
