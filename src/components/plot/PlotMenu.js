@@ -20,7 +20,7 @@ const Menu = styled.div`
 
 const MenuButton = styled.button`
     position: absolute;
-    top: -${buttonSize}px;
+    top: -${2 * buttonSize}px;
     margin-left: -${buttonSize / 2}px;
     left: 50%;    
     padding: 0;
@@ -30,9 +30,12 @@ const MenuButton = styled.button`
 `;
 
 const MenuContent = styled.div`
+    position: relative;
+    display: flex;
+    justify-content: center;
 `;
 
-export class VerticalScrollMenu extends Component {
+export class PlotMenu extends Component {
 
     constructor(props) {
         super(props);
@@ -62,7 +65,9 @@ export class VerticalScrollMenu extends Component {
                                            transform={this.state.visible ? 'rotate(90)' : 'rotate(-90)'}/>
                             </span>
                     </MenuButton>
-                    <MenuContent>{this.props.children}</MenuContent>
+                    <MenuContent>
+                        {this.props.children}
+                    </MenuContent>
                 </Menu>
             </MenuWrapper>
         );

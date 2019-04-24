@@ -2,9 +2,12 @@ import styled from "styled-components";
 import React from 'react';
 
 export const PlotComponentHeader = styled.h2`
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
     font-size: 1.5em;
     color: black;
-    margin: 0;
 `;
 
 export class ArrowIcon extends React.Component{

@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import {PlotWrapper} from "./components/PlotWrapper";
+import {DataPlot} from "./components/plot/DataPlot";
 import {Footer} from "./components/Footer";
 
 function App() {
   return (
       <>
-        <PlotWrapper/>
+        <DataPlot/>
         <Footer />
       </>
   );
