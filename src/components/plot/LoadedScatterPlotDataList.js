@@ -49,28 +49,37 @@ const DerivedDataSetInput = styled.input`
 
 export class LoadedScatterPlotDataList extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            loadedScatterPlotData: this.props.loadedScatterPlotData
+        }
+    }
+
     render() {
         return (
             <Component id={'loaded-data-list'}>
                 <ComponentTitle>Currently in figure</ComponentTitle>
                 <DataContainer>
-                    {this.props.loadedScatterPlotData.map(scatterDataSet => {
-                            if (scatterDataSet.visible) {
-                                return (
-                                    <DataSet>
-                                        <DataSetLabel>{scatterDataSet.displayName}, {scatterDataSet.graphSize}</DataSetLabel>
-                                        <RemoveFromPlotButton>
-                                            <CrossIcon width={crossIconSize} height={crossIconSize}/>
-                                        </RemoveFromPlotButton>
-                                        <DataSetLabel>Show average</DataSetLabel>
-                                        <DerivedDataSetInput type={'checkbox'} name={scatterDataSet.id + '-average'}/>
-                                        <DataSetLabel>Show median</DataSetLabel>
-                                        <DerivedDataSetInput type={'checkbox'} name={scatterDataSet.id + '-median'}/>
-                                    </DataSet>
-                                );
-                            }else {
-                                return null;
-                            }
+                    {this.state.loadedScatterPlotData.map(scatterDataSet => {
+                            let displayName = this.props.algorithms.find(algorithm => {
+                                return algorithm.algorithmName === scatterDataSet.algorithmName
+                            }).algorithmDisplayName;
+
+                            let title = displayName + ", " + scatterDataSet.graphSize;
+                            return (
+                                <DataSet key={title}>
+                                    <DataSetLabel>{title}</DataSetLabel>
+                                    <RemoveFromPlotButton>
+                                        <CrossIcon width={crossIconSize} height={crossIconSize}/>
+                                    </RemoveFromPlotButton>
+                                    <DataSetLabel>Show average</DataSetLabel>
+                                    <DerivedDataSetInput type={'checkbox'}
+                                                         name={scatterDataSet.algorithmName + '-average'}/>
+                                    <DataSetLabel>Show median</DataSetLabel>
+                                    <DerivedDataSetInput type={'checkbox'} name={scatterDataSet.algorithmName + '-median'}/>
+                                </DataSet>
+                            );
                         }
                     )}
                 </DataContainer>

@@ -18,12 +18,16 @@ export class DataPlot extends Component {
         super(props);
 
         let algorithms = [{
-            id: 'cetal',
-            displayName: 'Cetal'
+            algorithmName: 'cetal',
+            algorithmDisplayName: 'Cetal'
         },{
-            id: 'horn',
-            displayName: 'Horn'
-        }];
+            algorithmName: 'horn',
+            algorithmDisplayName: 'Horn'
+        },{
+            algorithmName: 'vacul',
+            algorithmDisplayName: 'Vandergriend & Culberson'
+        }
+        ];
 
         let graphSizes = [16, 24];
         let lineTypes = [
@@ -37,27 +41,57 @@ export class DataPlot extends Component {
             }
         ];
 
-        let testScatterData = algorithms[0];
-        testScatterData.graphSize = 16;
-        testScatterData.loaded = true;
-        testScatterData.visible = true;
-
-        let testScatterData2 = algorithms[1];
-        testScatterData2.graphSize = 24;
-        testScatterData2.loaded = true;
-        testScatterData2.visible = true;
-
-        let dummyLoadedData = [
-            testScatterData,
-            testScatterData2
-        ];
-
         this.state = {
             algorithms: algorithms,
             graphSizes: graphSizes,
             lineTypes: lineTypes,
-            loadedScatterPlotData: dummyLoadedData
+            loadedScatterPlotData: [],
+            isLoading: false
+        };
+
+        this.loadData = this.loadData.bind(this);
+        this.isLoaded = this.isLoaded.bind(this);
+    }
+
+    loadData(algorithmName, graphSize){
+        if(this.isLoaded(algorithmName, graphSize)){
+            console.log('Data already loaded for {}, {}', algorithmName, graphSize);
+            return;
         }
+
+        this.setState({
+            isLoading: true
+        });
+        let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
+        let url = window.location + "data/" + scatterPlotDataID + ".json";
+        console.log(url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then((jsonData) => {
+                let scatterPlotData = {};
+                scatterPlotData.id = scatterPlotDataID;
+                scatterPlotData.algorithmName = algorithmName;
+                scatterPlotData.graphSize = graphSize;
+                scatterPlotData.data = jsonData;
+                scatterPlotData.loaded = true;
+
+                let loadedData = this.state.loadedScatterPlotData;
+                loadedData.push(scatterPlotData);
+                console.log(loadedData);
+                this.setState({isLoading: false, loadedScatterPlotData: loadedData});
+            })
+            .catch((error) => {
+                console.log(error);
+                this.setState({isLoading: false});
+            })
+    }
+
+    isLoaded(algorithmID, graphSize){
+        let isLoaded = this.state.loadedScatterPlotData.find(data => {
+            return data.id===algorithmID && data.graphSize===graphSize;
+        });
+        return !(isLoaded === undefined);
     }
 
     render() {
@@ -67,8 +101,13 @@ export class DataPlot extends Component {
                     <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
                 </PlotCanvas>
                 <PlotMenu>
-                    <LoadScatterPlotDataComponent algorithms={this.state.algorithms} graphSizes={this.state.graphSizes}/>
-                    <LoadedScatterPlotDataList loadedScatterPlotData={this.state.loadedScatterPlotData}/>
+                    <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
+                                                  graphSizes={this.state.graphSizes}
+                                                  isLoading={this.state.isLoading}
+                                                  loadDataFunction={this.loadData}/>
+                    <LoadedScatterPlotDataList loadedScatterPlotData={this.state.loadedScatterPlotData}
+                                               algorithms={this.state.algorithms}
+                                               graphSizes={this.state.graphSizes}/>
                 </PlotMenu>
             </Window>
         )

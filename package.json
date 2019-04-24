@@ -6,6 +6,7 @@
     "d3": "^5.9.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-loading": "^2.0.3",
     "react-scripts": "3.0.0",
     "styled-components": "^4.2.0",
     "typescript": "^3.4.5"
