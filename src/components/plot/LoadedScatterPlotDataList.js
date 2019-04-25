@@ -3,9 +3,11 @@ import styled from 'styled-components';
 import {CrossIcon} from "./StyledPlotComponents";
 
 const Component = styled.div`
+    border-left: 1px solid;
     display: block;
     padding: 0 0 0 .5em;
     margin: 0;
+    height: 250px;
 `;
 
 const ComponentTitle = styled.h3`
@@ -16,9 +18,12 @@ const DataContainer = styled.div`
     display: flex;
     align-items: flex-start;
     padding: .5em;
+    flex-wrap: wrap;
+    overflow: auto;
 `;
 
 const DataSet = styled.div`
+    flex-shrink: 0;
     display: grid;
     grid-template-columns: 80% 20%;
     border: 1px solid;
@@ -53,7 +58,9 @@ export class LoadedScatterPlotDataList extends React.Component {
         super(props);
         this.state = {
             loadedScatterPlotData: this.props.loadedScatterPlotData
-        }
+        };
+
+        this.hideScatterData = this.hideScatterData.bind(this);
     }
 
     render() {
@@ -62,6 +69,9 @@ export class LoadedScatterPlotDataList extends React.Component {
                 <ComponentTitle>Currently in figure</ComponentTitle>
                 <DataContainer>
                     {this.state.loadedScatterPlotData.map(scatterDataSet => {
+                            if (!scatterDataSet.visible) {
+                                return null;
+                            }
                             let displayName = this.props.algorithms.find(algorithm => {
                                 return algorithm.algorithmName === scatterDataSet.algorithmName
                             }).algorithmDisplayName;
@@ -70,7 +80,9 @@ export class LoadedScatterPlotDataList extends React.Component {
                             return (
                                 <DataSet key={title}>
                                     <DataSetLabel>{title}</DataSetLabel>
-                                    <RemoveFromPlotButton>
+                                    <RemoveFromPlotButton onClick={this.hideScatterData}
+                                                          data-algorithm={scatterDataSet.algorithmName}
+                                                          data-graphsize={scatterDataSet.graphSize}>
                                         <CrossIcon width={crossIconSize} height={crossIconSize}/>
                                     </RemoveFromPlotButton>
                                     <DataSetLabel>Show average</DataSetLabel>
@@ -85,5 +97,11 @@ export class LoadedScatterPlotDataList extends React.Component {
                 </DataContainer>
             </Component>
         );
+    }
+
+    hideScatterData(event){
+        let algorithm = event.target.dataset.algorithm;
+        let graphsize = event.target.dataset.graphsize;
+        this.props.toggleScatterDataFunction(algorithm, parseInt(graphsize));
     }
 }

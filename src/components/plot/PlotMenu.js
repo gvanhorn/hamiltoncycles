@@ -33,6 +33,8 @@ const MenuContent = styled.div`
     position: relative;
     display: flex;
     justify-content: center;
+    padding: 0 0 1em 1em;
+    overflow: auto;
 `;
 
 export class PlotMenu extends Component {

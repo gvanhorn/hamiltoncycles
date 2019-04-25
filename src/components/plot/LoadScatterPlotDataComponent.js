@@ -4,7 +4,6 @@ import ReactLoading from 'react-loading';
 
 
 const StyledLoadScatterPlotDataComponent = styled.div`
-    border-right: 1px solid;
     padding: 0 .5em 0 0;
     margin: 0;
     display: grid;
@@ -22,6 +21,7 @@ const StyledLabel = styled.label`
 
 const StyledSelect = styled.select`
     margin: 0.5em 0;
+    height: 2em;
 `;
 
 const StyledButton = styled.button`
@@ -30,12 +30,13 @@ const StyledButton = styled.button`
     border: 0;
     cursor: pointer;
     grid-column-start: span 2;
+    height: 2em;
 `;
 
 const loadingAnimationWidth = 100;
 const loadingAnimationHeight = '2em';
 const LoadingAnimationRow = styled.div`
-    margin-top: 5px;
+    height: ${loadingAnimationHeight};
     grid-column-start: span 2;
     padding-left: 50%;
     margin-left: -${loadingAnimationWidth / 2}px;
@@ -57,12 +58,11 @@ export class LoadScatterPlotDataComponent extends React.Component {
     }
 
     render() {
-        let loadingSpinner = null;
-        if(this.props.isLoading){
-            loadingSpinner = (
-                <LoadingAnimationRow>
-                    <ReactLoading type={'bubbles'} color="#000" width={loadingAnimationWidth} height={loadingAnimationHeight}/>
-                </LoadingAnimationRow>
+        let loadingAnimation = null;
+        if (this.props.isLoading) {
+            loadingAnimation = (
+                <ReactLoading type={'bubbles'} color="#000" width={loadingAnimationWidth}
+                              height={loadingAnimationHeight} className={'loading-animation'}/>
             )
         }
         return (
@@ -71,19 +71,22 @@ export class LoadScatterPlotDataComponent extends React.Component {
                 <StyledLabel>Algorithm:</StyledLabel>
                 <StyledSelect value={this.state.algorithm} name='algorithm' onChange={this.handleChange}>
                     {this.props.algorithms.map(algorithm => (
-                            <option key={algorithm.algorithmName} value={algorithm.algorithmName}>{algorithm.algorithmDisplayName}</option>
+                            <option key={algorithm.algorithmName}
+                                    value={algorithm.algorithmName}>{algorithm.algorithmDisplayName}</option>
                         )
                     )}
                 </StyledSelect>
                 <StyledLabel>Graph size:</StyledLabel>
                 <StyledSelect value={this.state.graphSize} name='graphSize' onChange={this.handleChange}>
                     {this.props.graphSizes.map(graphSize => (
-                            <option key={graphSize.toString()} value={graphSize}>{graphSize.toString()}</option>
+                            <option key={graphSize} value={graphSize}>{graphSize}</option>
                         )
                     )}
                 </StyledSelect>
                 <StyledButton onClick={this.handleSubmit}>Add to plot</StyledButton>
-                {loadingSpinner}
+                <LoadingAnimationRow>
+                    {loadingAnimation}
+                </LoadingAnimationRow>
             </StyledLoadScatterPlotDataComponent>
         );
     }

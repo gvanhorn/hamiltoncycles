@@ -20,10 +20,10 @@ export class DataPlot extends Component {
         let algorithms = [{
             algorithmName: 'cetal',
             algorithmDisplayName: 'Cetal'
-        },{
+        }, {
             algorithmName: 'horn',
             algorithmDisplayName: 'Horn'
-        },{
+        }, {
             algorithmName: 'vacul',
             algorithmDisplayName: 'Vandergriend & Culberson'
         }
@@ -51,17 +51,23 @@ export class DataPlot extends Component {
 
         this.loadData = this.loadData.bind(this);
         this.isLoaded = this.isLoaded.bind(this);
+        this.getScatterData = this.getScatterData.bind(this);
+        this.toggleScatterDataVisibility = this.toggleScatterDataVisibility.bind(this);
     }
 
-    loadData(algorithmName, graphSize){
-        if(this.isLoaded(algorithmName, graphSize)){
-            console.log('Data already loaded for {}, {}', algorithmName, graphSize);
+    loadData(algorithmName, graphSize) {
+        if (this.isLoaded(algorithmName, graphSize)) {
+            console.log('Data already loaded for ', algorithmName, graphSize);
+            if(!this.getScatterData(algorithmName, graphSize).visible) {
+                this.toggleScatterDataVisibility(algorithmName, graphSize);
+            }
             return;
         }
 
         this.setState({
             isLoading: true
         });
+
         let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
         let url = window.location + "data/" + scatterPlotDataID + ".json";
         console.log(url);
@@ -70,11 +76,10 @@ export class DataPlot extends Component {
             .then(response => response.json())
             .then((jsonData) => {
                 let scatterPlotData = {};
-                scatterPlotData.id = scatterPlotDataID;
                 scatterPlotData.algorithmName = algorithmName;
-                scatterPlotData.graphSize = graphSize;
+                scatterPlotData.graphSize = parseInt(graphSize);
                 scatterPlotData.data = jsonData;
-                scatterPlotData.loaded = true;
+                scatterPlotData.visible = true;
 
                 let loadedData = this.state.loadedScatterPlotData;
                 loadedData.push(scatterPlotData);
@@ -87,19 +92,37 @@ export class DataPlot extends Component {
             })
     }
 
-    isLoaded(algorithmID, graphSize){
-        let isLoaded = this.state.loadedScatterPlotData.find(data => {
-            return data.id===algorithmID && data.graphSize===graphSize;
+    toggleScatterDataVisibility(algorithmName, graphSize){
+        console.log(algorithmName, graphSize);
+        console.log(this.state.loadedScatterPlotData);
+        let scatterdata = this.getScatterData(algorithmName, graphSize);
+        scatterdata.visible = !scatterdata.visible;
+
+        let index = this.state.loadedScatterPlotData.findIndex(data => {
+            return data.id === algorithmName && data.graphSize === graphSize;
         });
-        return !(isLoaded === undefined);
+        let loadedScatterData = this.state.loadedScatterPlotData;
+        loadedScatterData[index] = scatterdata;
+        this.setState({loadedScatterPlotData: loadedScatterData});
+    }
+
+    isLoaded(algorithmName, graphSize) {
+        return this.state.loadedScatterPlotData.findIndex(data => {
+            return data.algorithmName === algorithmName && data.graphSize === graphSize;
+        }) > -1;
+    }
+
+    getScatterData(algorithmName, graphSize) {
+        return this.state.loadedScatterPlotData.find(data => {
+            return data.algorithmName === algorithmName && data.graphSize === graphSize;
+        });
     }
 
     render() {
         return (
             <Window id={'plot-wrapper'}>
-                <PlotCanvas>
-                    <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
-                </PlotCanvas>
+                <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
+                <PlotCanvas/>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
                                                   graphSizes={this.state.graphSizes}
@@ -107,7 +130,8 @@ export class DataPlot extends Component {
                                                   loadDataFunction={this.loadData}/>
                     <LoadedScatterPlotDataList loadedScatterPlotData={this.state.loadedScatterPlotData}
                                                algorithms={this.state.algorithms}
-                                               graphSizes={this.state.graphSizes}/>
+                                               graphSizes={this.state.graphSizes}
+                                               toggleScatterDataFunction={this.toggleScatterDataVisibility}/>
                 </PlotMenu>
             </Window>
         )
