@@ -80,9 +80,10 @@ export class DataPlot extends Component {
     }
 
     isLoaded(algorithmName, graphSize) {
-        return this.state.loadedScatterPlotData.findIndex(data => {
+        let index = this.state.loadedScatterPlotData.findIndex(data => {
             return data.algorithmName === algorithmName && data.graphSize === graphSize;
-        }) > -1;
+        });
+        return index > -1;
     }
 
     getScatterData(algorithmName, graphSize) {
@@ -95,7 +96,7 @@ export class DataPlot extends Component {
         return (
             <Window id={'plot-wrapper'}>
                 <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
-                <PlotCanvas/>
+                <PlotCanvas loadedScatterPlotData={this.state.loadedScatterPlotData}/>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
                                                   graphSizes={this.state.graphSizes}

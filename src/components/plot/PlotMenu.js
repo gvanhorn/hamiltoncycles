@@ -32,8 +32,8 @@ const MenuButton = styled.button`
 const MenuContent = styled.div`
     position: relative;
     display: flex;
-    justify-content: center;
-    padding: 0 0 1em 1em;
+    justify-content: flex-start;
+    padding: 0 0 1em 2em;
     overflow: auto;
 `;
 
@@ -50,11 +50,7 @@ export class PlotMenu extends Component {
     }
 
     toggleMenu() {
-        if (this.state.visible) {
-            this.setState({visible: false})
-        } else {
-            this.setState({visible: true})
-        }
+        this.setState({visible: !this.state.visible})
     }
 
     render() {

@@ -1,5 +1,6 @@
-import React,{Component} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
+import {canvasSetup, drawDataPoints, hideData, isDrawn, showData} from "./PlotHelper";
 
 const Canvas = styled.div`
     width: 100%;
@@ -7,6 +8,25 @@ const Canvas = styled.div`
 `;
 
 export class PlotCanvas extends Component {
+
+    componentDidMount() {
+        canvasSetup();
+    }
+
+    componentDidUpdate() {
+        this.props.loadedScatterPlotData.forEach((scatterPlotData) => {
+            let className = scatterPlotData.algorithmName + "-" + scatterPlotData.graphSize;
+            if (!isDrawn(className)) {
+                drawDataPoints(scatterPlotData.data, className);
+            } else {
+                if(scatterPlotData.visible){
+                    showData(className);
+                }else {
+                    hideData(className);
+                }
+            }
+        });
+    }
 
     render() {
         return (
