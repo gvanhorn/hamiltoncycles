@@ -45,7 +45,7 @@ export class DataPlot extends Component {
         });
 
         let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
-        let url = window.location + "data/" + scatterPlotDataID + ".json";
+        let url = window.location + "results/" + scatterPlotDataID + ".json";
         console.log(url);
 
         fetch(url)
@@ -112,6 +112,18 @@ export class DataPlot extends Component {
     }
 }
 
+const graphSizes = [16, 24, 32];
+const lineTypes = [
+    {
+        id: 'average',
+        displayName: 'Average'
+    },
+    {
+        id: 'median',
+        displayName: 'Median'
+    }
+];
+
 const algorithms = [{
     algorithmName: 'cetal',
     algorithmDisplayName: 'Cetal'
@@ -128,16 +140,4 @@ const algorithms = [{
     algorithmName: 'vacul',
     algorithmDisplayName: 'Vandergriend & Culberson'
 }
-];
-
-const graphSizes = [16, 24, 32];
-const lineTypes = [
-    {
-        id: 'average',
-        displayName: 'Average'
-    },
-    {
-        id: 'median',
-        displayName: 'Median'
-    }
 ];
