@@ -45,7 +45,7 @@ export class DataPlot extends Component {
         });
 
         let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
-        let url = window.location + "results/" + scatterPlotDataID + ".json";
+        let url = window.location + "prepared-results/" + scatterPlotDataID + ".json";
         console.log(url);
 
         fetch(url)
@@ -133,9 +133,6 @@ const algorithms = [{
 }, {
     algorithmName: 'martello',
     algorithmDisplayName: 'Martello'
-},{
-    algorithmName: 'rubin',
-    algorithmDisplayName: 'Rubin'
 }, {
     algorithmName: 'vacul',
     algorithmDisplayName: 'Vandergriend & Culberson'
