@@ -42,6 +42,10 @@ const LoadingAnimationRow = styled.div`
     margin-left: -${loadingAnimationWidth / 2}px;
 `;
 
+const ErrorMessage = styled.span`
+    color: red;
+`;
+
 
 export class LoadScatterPlotDataComponent extends React.Component {
 
@@ -58,12 +62,17 @@ export class LoadScatterPlotDataComponent extends React.Component {
     }
 
     render() {
-        let loadingAnimation = null;
+        let loadingState = null;
         if (this.props.isLoading) {
-            loadingAnimation = (
+            loadingState = (
                 <ReactLoading type={'bubbles'} color="#000" width={loadingAnimationWidth}
                               height={loadingAnimationHeight} className={'loading-animation'}/>
-            )
+            );
+        }
+        if (this.props.errorLoadingData) {
+            loadingState = (
+                <ErrorMessage>Error loading data</ErrorMessage>
+            );
         }
         return (
             <StyledLoadScatterPlotDataComponent id={'load-scatter-data-component'}>
@@ -85,7 +94,7 @@ export class LoadScatterPlotDataComponent extends React.Component {
                 </StyledSelect>
                 <StyledButton onClick={this.handleSubmit}>Add to plot</StyledButton>
                 <LoadingAnimationRow>
-                    {loadingAnimation}
+                    {loadingState}
                 </LoadingAnimationRow>
             </StyledLoadScatterPlotDataComponent>
         );

@@ -17,30 +17,6 @@ export class DataPlot extends Component {
     constructor(props) {
         super(props);
 
-        let algorithms = [{
-            algorithmName: 'cetal',
-            algorithmDisplayName: 'Cetal'
-        }, {
-            algorithmName: 'horn',
-            algorithmDisplayName: 'Horn'
-        }, {
-            algorithmName: 'vacul',
-            algorithmDisplayName: 'Vandergriend & Culberson'
-        }
-        ];
-
-        let graphSizes = [16, 24];
-        let lineTypes = [
-            {
-                id: 'average',
-                displayName: 'Average'
-            },
-            {
-                id: 'median',
-                displayName: 'Median'
-            }
-        ];
-
         this.state = {
             algorithms: algorithms,
             graphSizes: graphSizes,
@@ -83,18 +59,15 @@ export class DataPlot extends Component {
 
                 let loadedData = this.state.loadedScatterPlotData;
                 loadedData.push(scatterPlotData);
-                console.log(loadedData);
-                this.setState({isLoading: false, loadedScatterPlotData: loadedData});
+                this.setState({isLoading: false, loadedScatterPlotData: loadedData, errorLoadingData: false});
             })
             .catch((error) => {
                 console.log(error);
-                this.setState({isLoading: false});
+                this.setState({isLoading: false, errorLoadingData: true});
             })
     }
 
     toggleScatterDataVisibility(algorithmName, graphSize){
-        console.log(algorithmName, graphSize);
-        console.log(this.state.loadedScatterPlotData);
         let scatterdata = this.getScatterData(algorithmName, graphSize);
         scatterdata.visible = !scatterdata.visible;
 
@@ -127,6 +100,7 @@ export class DataPlot extends Component {
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
                                                   graphSizes={this.state.graphSizes}
                                                   isLoading={this.state.isLoading}
+                                                  errorLoadingData={this.state.errorLoadingData}
                                                   loadDataFunction={this.loadData}/>
                     <LoadedScatterPlotDataList loadedScatterPlotData={this.state.loadedScatterPlotData}
                                                algorithms={this.state.algorithms}
@@ -137,3 +111,33 @@ export class DataPlot extends Component {
         )
     }
 }
+
+const algorithms = [{
+    algorithmName: 'cetal',
+    algorithmDisplayName: 'Cetal'
+}, {
+    algorithmName: 'horn',
+    algorithmDisplayName: 'Horn'
+}, {
+    algorithmName: 'martello',
+    algorithmDisplayName: 'Martello'
+},{
+    algorithmName: 'rubin',
+    algorithmDisplayName: 'Rubin'
+}, {
+    algorithmName: 'vacul',
+    algorithmDisplayName: 'Vandergriend & Culberson'
+}
+];
+
+const graphSizes = [16, 24, 32];
+const lineTypes = [
+    {
+        id: 'average',
+        displayName: 'Average'
+    },
+    {
+        id: 'median',
+        displayName: 'Median'
+    }
+];
