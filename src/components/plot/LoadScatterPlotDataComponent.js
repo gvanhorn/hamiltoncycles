@@ -23,7 +23,7 @@ const StyledSelect = styled.select`
 `;
 
 const StyledButton = styled.button`
-    margin-top: 5px;
+    margin-top: .5em;
     padding: 5px;
     border: 0;
     cursor: pointer;

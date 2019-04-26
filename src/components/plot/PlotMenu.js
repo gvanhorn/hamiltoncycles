@@ -29,6 +29,13 @@ const MenuButton = styled.button`
     border: 0;
     background: transparent;
     cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+`;
+
+const MenuButtonLabel = styled.span`
+    padding-top: .5em;
+    padding-left: .5em;
 `;
 
 const MenuContent = styled.div`
@@ -64,6 +71,7 @@ export class PlotMenu extends Component {
                                 <ArrowIcon width={buttonSize} height={buttonSize}
                                            transform={this.state.visible ? 'rotate(90)' : 'rotate(-90)'}/>
                             </span>
+                            <MenuButtonLabel>{this.state.visible ? 'Close menu' : 'Open menu'}</MenuButtonLabel>
                     </MenuButton>
                     <MenuContent>
                         {this.props.children}
