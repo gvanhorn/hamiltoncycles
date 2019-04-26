@@ -39,7 +39,7 @@ export const canvasSetup = function canvasSetup() {
         .attr("class", "label")
         .attr("x", getWidth())
         .attr("y", getHeight())
-        .attr("dy", "2em")
+        .attr("dy", "3em")
         .style("text-anchor", "end")
         .text("Average connectivity");
 
@@ -52,7 +52,7 @@ export const canvasSetup = function canvasSetup() {
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("x", 0)
-        .attr("y", "-3em")
+        .attr("y", "-4em")
         .style("text-anchor", "end")
         .text("Relative cost (iterations / nodes)");
 };

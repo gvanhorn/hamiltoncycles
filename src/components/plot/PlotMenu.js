@@ -40,8 +40,10 @@ const MenuButtonLabel = styled.span`
 
 const MenuContent = styled.div`
     position: relative;
+    height: ${menuHeight}px;
     display: flex;
     justify-content: flex-start;
+    flex-wrap: wrap;
     padding: 0 0 1em 2em;
     overflow: auto;
 `;

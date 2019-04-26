@@ -7,7 +7,6 @@ const Component = styled.div`
     display: block;
     padding: 0 0 0 .5em;
     margin: 0;
-    height: 250px;
 `;
 
 const ComponentTitle = styled.h3`
