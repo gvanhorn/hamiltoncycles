@@ -16,6 +16,8 @@ const Menu = styled.div`
     position: relative;
     width: 100%;
     height: ${menuHeight}px;
+    background: white;
+    border-top: 1px solid;
 `;
 
 const MenuButton = styled.button`

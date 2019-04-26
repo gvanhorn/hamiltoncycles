@@ -1,7 +1,5 @@
 import React from "react";
 import styled from 'styled-components';
-import ReactLoading from 'react-loading';
-
 
 const StyledLoadScatterPlotDataComponent = styled.div`
     padding: 0 .5em 0 0;
@@ -65,10 +63,12 @@ export class LoadScatterPlotDataComponent extends React.Component {
         let loadingState = null;
         if (this.props.isLoading) {
             loadingState = (
-                <ReactLoading type={'bubbles'} color="#000" width={loadingAnimationWidth}
-                              height={loadingAnimationHeight} className={'loading-animation'}/>
+                <div className="lds-ellipsis">
+                    <div /><div /><div/><div/>
+                </div>
             );
         }
+
         if (this.props.errorLoadingData) {
             loadingState = (
                 <ErrorMessage>Error loading data</ErrorMessage>
@@ -103,7 +103,12 @@ export class LoadScatterPlotDataComponent extends React.Component {
     handleChange(event) {
         let partialState = {};
         let propertyName = event.target.name;
-        partialState[propertyName] = event.target.value;
+        let propertyValue = event.target.value;
+        if (propertyName === 'graphSize'){
+            propertyValue = parseInt(event.target.value);
+        }
+
+        partialState[propertyName] = propertyValue;
         this.setState(partialState);
     }
 

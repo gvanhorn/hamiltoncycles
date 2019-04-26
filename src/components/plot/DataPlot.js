@@ -81,7 +81,7 @@ export class DataPlot extends Component {
 
     isLoaded(algorithmName, graphSize) {
         let index = this.state.loadedScatterPlotData.findIndex(data => {
-            return data.algorithmName === algorithmName && data.graphSize === graphSize;
+            return (data.algorithmName === algorithmName) && (data.graphSize === graphSize);
         });
         return index > -1;
     }
