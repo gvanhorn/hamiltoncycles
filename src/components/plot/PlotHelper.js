@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 var svg;
 
 const maximumAverageDegree = 31;
+const maximumRelativeCost = 10000;
 const margin = {top: 40, right: 40, bottom: 70, left: 70},
     xPadding = 0,
     yPadding = 0;
@@ -14,7 +15,6 @@ const yMap = function (result) {
     return getYScale()(result['relativeCost'] + 0.01);
 };
 const color = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
-
 
 export const canvasSetup = function canvasSetup() {
     svg = getCanvasSelection().append("svg")
@@ -96,7 +96,7 @@ function getXScale() {
 }
 
 function getYScale() {
-    return d3.scaleLog().range([getHeight() - yPadding, yPadding]).domain([0.01, 100000000]).nice();
+    return d3.scaleLog().range([getHeight() - yPadding, yPadding]).domain([0.01, maximumRelativeCost]).nice();
 }
 
 function getCanvasSelection() {

@@ -45,7 +45,7 @@ export class DataPlot extends Component {
         });
 
         let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
-        let url = window.location + "prepared-results/" + scatterPlotDataID + ".json";
+        let url = window.location + "results/" + scatterPlotDataID + ".json";
         console.log(url);
 
         fetch(url)
@@ -128,14 +128,20 @@ const lineTypes = [
 const algorithms = [{
     algorithmName: 'cetal',
     algorithmDisplayName: 'Cetal'
-}, {
-    algorithmName: 'horn',
-    algorithmDisplayName: 'Horn'
-}, {
+},{
     algorithmName: 'martello',
     algorithmDisplayName: 'Martello'
-}, {
+},{
+    algorithmName: 'nakeddepthfirst',
+    algorithmDisplayName: 'Depth First, no heuristics'
+},{
+    algorithmName: 'rubin',
+    algorithmDisplayName: 'Rubin'
+},{
     algorithmName: 'vacul',
     algorithmDisplayName: 'Vandergriend & Culberson'
+},{
+    algorithmName: 'vanhorn',
+    algorithmDisplayName: 'van Horn'
 }
 ];
