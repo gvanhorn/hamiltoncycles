@@ -11,21 +11,27 @@ export class PlotCanvas extends Component {
 
     componentDidMount() {
         canvasSetup();
+
+        this.updateScatterData = this.updateScatterData.bind(this);
     }
 
     componentDidUpdate() {
         this.props.loadedScatterPlotData.forEach((scatterPlotData) => {
-            let className = scatterPlotData.algorithmName + "-" + scatterPlotData.graphSize;
-            if (!isDrawn(className)) {
-                drawDataPoints(scatterPlotData.data, className);
-            } else {
-                if(scatterPlotData.visible){
-                    showData(className);
-                }else {
-                    hideData(className);
-                }
-            }
+            this.updateScatterData(scatterPlotData);
         });
+    }
+
+    updateScatterData(scatterPlotData){
+        let className = scatterPlotData.algorithmName + "-" + scatterPlotData.graphSize;
+        if (!isDrawn(className)) {
+            drawDataPoints(scatterPlotData.data, className);
+        } else {
+            if(scatterPlotData.visible){
+                showData(className);
+            }else {
+                hideData(className);
+            }
+        }
     }
 
     render() {

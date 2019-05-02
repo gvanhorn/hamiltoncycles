@@ -29,12 +29,13 @@ export class DataPlot extends Component {
         this.isLoaded = this.isLoaded.bind(this);
         this.getScatterData = this.getScatterData.bind(this);
         this.toggleScatterDataVisibility = this.toggleScatterDataVisibility.bind(this);
+        this.fetchJSONData = this.fetchJSONData.bind(this);
     }
 
     loadData(algorithmName, graphSize) {
         if (this.isLoaded(algorithmName, graphSize)) {
             console.log('Data already loaded for ', algorithmName, graphSize);
-            if(!this.getScatterData(algorithmName, graphSize).visible) {
+            if (!this.getScatterData(algorithmName, graphSize).visible) {
                 this.toggleScatterDataVisibility(algorithmName, graphSize);
             }
             return;
@@ -44,30 +45,40 @@ export class DataPlot extends Component {
             isLoading: true
         });
 
+        let scatterPlotData = {};
+        scatterPlotData.algorithmName = algorithmName;
+        scatterPlotData.graphSize = parseInt(graphSize);
+        scatterPlotData.visible = true;
+
         let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
-        let url = window.location + "results/" + scatterPlotDataID + ".json";
-        console.log(url);
-
-        fetch(url)
-            .then(response => response.json())
-            .then((jsonData) => {
-                let scatterPlotData = {};
-                scatterPlotData.algorithmName = algorithmName;
-                scatterPlotData.graphSize = parseInt(graphSize);
-                scatterPlotData.data = jsonData;
-                scatterPlotData.visible = true;
-
+        let dataUrl = window.location + "results/" + scatterPlotDataID + ".json";
+        let meanDataUrl = window.location + "results/" + scatterPlotDataID + "-mean.json";
+        let medianDataUrl = window.location + "results/" + scatterPlotDataID + "-median.json";
+        Promise.all([this.fetchJSONData(dataUrl), this.fetchJSONData(meanDataUrl), this.fetchJSONData(medianDataUrl)])
+            .then(values => {
+                scatterPlotData.data = values[0];
+                scatterPlotData.means = values[1];
+                scatterPlotData.medians = values[2];
                 let loadedData = this.state.loadedScatterPlotData;
                 loadedData.push(scatterPlotData);
-                this.setState({isLoading: false, loadedScatterPlotData: loadedData, errorLoadingData: false});
+                this.setState({isLoading: false, loadedScatterPlotData: loadedData});
+            });
+    }
+
+    fetchJSONData(url) {
+        return fetch(url)
+            .then(response => response.json())
+            .then((jsonData) => {
+                this.setState({errorLoadingData: false});
+                return jsonData;
             })
             .catch((error) => {
                 console.log(error);
-                this.setState({isLoading: false, errorLoadingData: true});
-            })
+                this.setState({errorLoadingData: true});
+            });
     }
 
-    toggleScatterDataVisibility(algorithmName, graphSize){
+    toggleScatterDataVisibility(algorithmName, graphSize) {
         let scatterdata = this.getScatterData(algorithmName, graphSize);
         scatterdata.visible = !scatterdata.visible;
 
@@ -128,19 +139,19 @@ const lineTypes = [
 const algorithms = [{
     algorithmName: 'cetal',
     algorithmDisplayName: 'Cetal'
-},{
+}, {
     algorithmName: 'martello',
     algorithmDisplayName: 'Martello'
-},{
+}, {
     algorithmName: 'nakeddepthfirst',
     algorithmDisplayName: 'Depth First, no heuristics'
-},{
+}, {
     algorithmName: 'rubin',
     algorithmDisplayName: 'Rubin'
-},{
+}, {
     algorithmName: 'vacul',
     algorithmDisplayName: 'Vandergriend & Culberson'
-},{
+}, {
     algorithmName: 'vanhorn',
     algorithmDisplayName: 'van Horn'
 }
