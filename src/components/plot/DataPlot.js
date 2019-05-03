@@ -21,22 +21,23 @@ export class DataPlot extends Component {
             algorithms: algorithms,
             graphSizes: graphSizes,
             lineTypes: lineTypes,
-            loadedScatterPlotData: [],
+            loadedData: [],
             isLoading: false
         };
 
         this.loadData = this.loadData.bind(this);
         this.isLoaded = this.isLoaded.bind(this);
-        this.getScatterData = this.getScatterData.bind(this);
-        this.toggleScatterDataVisibility = this.toggleScatterDataVisibility.bind(this);
+        this.getData = this.getData.bind(this);
+        this.toggleVisibility = this.toggleVisibility.bind(this);
+        this.hideAllData = this.hideAllData.bind(this);
         this.fetchJSONData = this.fetchJSONData.bind(this);
     }
 
     loadData(algorithmName, graphSize) {
         if (this.isLoaded(algorithmName, graphSize)) {
             console.log('Data already loaded for ', algorithmName, graphSize);
-            if (!this.getScatterData(algorithmName, graphSize).visible) {
-                this.toggleScatterDataVisibility(algorithmName, graphSize);
+            if (!this.getData(algorithmName, graphSize).visible) {
+                this.toggleVisibility(algorithmName, graphSize);
             }
             return;
         }
@@ -45,23 +46,25 @@ export class DataPlot extends Component {
             isLoading: true
         });
 
-        let scatterPlotData = {};
-        scatterPlotData.algorithmName = algorithmName;
-        scatterPlotData.graphSize = parseInt(graphSize);
-        scatterPlotData.visible = true;
+        let plotData = {};
+        plotData.algorithmName = algorithmName;
+        plotData.graphSize = parseInt(graphSize);
+        plotData.visible = true;
+        plotData.scatterVisible = true;
+        plotData.meanVisible = true;
+        plotData.medianVisible = true;
 
         let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
         let dataUrl = window.location + "results/" + scatterPlotDataID + ".json";
-        let meanDataUrl = window.location + "results/" + scatterPlotDataID + "-mean.json";
-        let medianDataUrl = window.location + "results/" + scatterPlotDataID + "-median.json";
-        Promise.all([this.fetchJSONData(dataUrl), this.fetchJSONData(meanDataUrl), this.fetchJSONData(medianDataUrl)])
+        let derivedDataUrl = window.location + "results/" + scatterPlotDataID + "-derived.json";
+        Promise.all([this.fetchJSONData(dataUrl), this.fetchJSONData(derivedDataUrl)])
             .then(values => {
-                scatterPlotData.data = values[0];
-                scatterPlotData.means = values[1];
-                scatterPlotData.medians = values[2];
-                let loadedData = this.state.loadedScatterPlotData;
-                loadedData.push(scatterPlotData);
-                this.setState({isLoading: false, loadedScatterPlotData: loadedData});
+                plotData.data = values[0];
+                plotData.derived = values[1].sort(function(a, b){return a['averageDegree'] - b['averageDegree']});
+                let loadedData = this.state.loadedData;
+                loadedData.push(plotData);
+                console.log(loadedData);
+                this.setState({isLoading: false, loadedData: loadedData});
             });
     }
 
@@ -78,27 +81,53 @@ export class DataPlot extends Component {
             });
     }
 
-    toggleScatterDataVisibility(algorithmName, graphSize) {
-        let scatterdata = this.getScatterData(algorithmName, graphSize);
-        scatterdata.visible = !scatterdata.visible;
-
-        let index = this.state.loadedScatterPlotData.findIndex(data => {
+    hideAllData(algorithmName, graphSize){
+        let data = this.getData(algorithmName, graphSize);
+        console.log(data);
+        data.visible = false;
+        data.scatterVisible = false;
+        data.meanVisible = false;
+        data.medianVisible = false;
+        let index = this.state.loadedData.findIndex(data => {
             return data.id === algorithmName && data.graphSize === graphSize;
         });
-        let loadedScatterData = this.state.loadedScatterPlotData;
-        loadedScatterData[index] = scatterdata;
-        this.setState({loadedScatterPlotData: loadedScatterData});
+        let loadedData = this.state.loadedData;
+        loadedData[index] = data;
+        this.setState({loadedData: loadedData});
+    }
+
+    toggleVisibility(algorithmName, graphSize, dataType) {
+        let data = this.getData(algorithmName, graphSize);
+        switch(dataType){
+            case 'scatter':
+                data.scatterVisible = !data.scatterVisible;
+                break;
+            case 'mean':
+                data.meanVisible = !data.meanVisible;
+                break;
+            case 'median':
+                data.medianVisible = !data.medianVisible;
+                break;
+            default:
+                data.visible = !data.visible;
+        }
+        let index = this.state.loadedData.findIndex(data => {
+            return data.id === algorithmName && data.graphSize === graphSize;
+        });
+        let loadedData = this.state.loadedData;
+        loadedData[index] = data;
+        this.setState({loadedData: loadedData});
     }
 
     isLoaded(algorithmName, graphSize) {
-        let index = this.state.loadedScatterPlotData.findIndex(data => {
+        let index = this.state.loadedData.findIndex(data => {
             return (data.algorithmName === algorithmName) && (data.graphSize === graphSize);
         });
         return index > -1;
     }
 
-    getScatterData(algorithmName, graphSize) {
-        return this.state.loadedScatterPlotData.find(data => {
+    getData(algorithmName, graphSize) {
+        return this.state.loadedData.find(data => {
             return data.algorithmName === algorithmName && data.graphSize === graphSize;
         });
     }
@@ -107,17 +136,18 @@ export class DataPlot extends Component {
         return (
             <Window id={'plot-wrapper'}>
                 <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
-                <PlotCanvas loadedScatterPlotData={this.state.loadedScatterPlotData}/>
+                <PlotCanvas loadedData={this.state.loadedData}/>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
                                                   graphSizes={this.state.graphSizes}
                                                   isLoading={this.state.isLoading}
                                                   errorLoadingData={this.state.errorLoadingData}
                                                   loadDataFunction={this.loadData}/>
-                    <LoadedScatterPlotDataList loadedScatterPlotData={this.state.loadedScatterPlotData}
+                    <LoadedScatterPlotDataList loadedData={this.state.loadedData}
                                                algorithms={this.state.algorithms}
                                                graphSizes={this.state.graphSizes}
-                                               toggleScatterDataFunction={this.toggleScatterDataVisibility}/>
+                                               toggleVisibilityFunction={this.toggleVisibility}
+                                               hideAllDataFunction={this.hideAllData}/>
                 </PlotMenu>
             </Window>
         )

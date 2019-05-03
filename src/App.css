@@ -2,6 +2,38 @@ svg text.label{
   font-size: 13px;
 }
 
+svg path.cetal{
+  stroke: darkblue;
+}
+
+svg path.martello{
+  stroke: darkgreen;
+}
+
+svg path.nakeddepthfirst{
+  stroke: darkgoldenrod;
+}
+
+svg path.rubin{
+  stroke: darkred;
+}
+
+svg path.vacul{
+  stroke: black;
+}
+
+svg path.vanhorn{
+  stroke: saddlebrown;
+}
+
+svg path.median{
+  stroke-width: 3px;
+}
+
+svg path.mean{
+  stroke-width: 1px;
+}
+
 #root {
   margin-bottom: 0;
 }

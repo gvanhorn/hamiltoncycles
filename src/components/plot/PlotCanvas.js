@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {canvasSetup, drawDataPoints, hideData, isDrawn, showData} from "./PlotHelper";
+import {canvasSetup, drawDataPoints, drawMeanLine, drawMedianLine, hideData, isDrawn, showData} from "./PlotHelper";
 
 const Canvas = styled.div`
     width: 100%;
@@ -12,24 +12,46 @@ export class PlotCanvas extends Component {
     componentDidMount() {
         canvasSetup();
 
-        this.updateScatterData = this.updateScatterData.bind(this);
+        this.updateDrawing = this.updateDrawing.bind(this);
     }
 
     componentDidUpdate() {
-        this.props.loadedScatterPlotData.forEach((scatterPlotData) => {
-            this.updateScatterData(scatterPlotData);
+        this.props.loadedData.forEach((plotData) => {
+            this.updateDrawing(plotData, 'scatter');
+            this.updateDrawing(plotData, 'mean');
+            this.updateDrawing(plotData, 'median');
         });
     }
 
-    updateScatterData(scatterPlotData){
-        let className = scatterPlotData.algorithmName + "-" + scatterPlotData.graphSize;
-        if (!isDrawn(className)) {
-            drawDataPoints(scatterPlotData.data, className);
-        } else {
-            if(scatterPlotData.visible){
-                showData(className);
-            }else {
-                hideData(className);
+    updateDrawing(plotData, type){
+        let classNames = [plotData.algorithmName, "graph-size-" + plotData.graphSize, type];
+        if (!isDrawn(classNames)) {
+            switch(type){
+                case 'scatter':
+                    drawDataPoints(plotData.data, classNames);
+                    break;
+                case 'mean':
+                    drawMeanLine(plotData.derived, classNames);
+                    break;
+                case 'median':
+                    drawMedianLine(plotData.derived, classNames);
+                    break;
+                default:
+                    console.log("unrecognized type for drawing");
+            }
+        }else {
+            switch(type){
+                case 'scatter':
+                    plotData.scatterVisible ? showData(classNames) : hideData(classNames);
+                    break;
+                case 'mean':
+                    plotData.meanVisible ? showData(classNames) : hideData(classNames);
+                    break;
+                case 'median':
+                    plotData.medianVisible ? showData(classNames) : hideData(classNames);
+                    break;
+                default:
+                    console.log('unrecognized type for drawing');
             }
         }
     }

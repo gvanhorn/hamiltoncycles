@@ -56,10 +56,11 @@ export class LoadedScatterPlotDataList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loadedScatterPlotData: this.props.loadedScatterPlotData
+            loadedData: this.props.loadedData
         };
 
-        this.hideScatterData = this.hideScatterData.bind(this);
+        this.checkboxHandler = this.checkboxHandler.bind(this);
+        this.closeHandler = this.closeHandler.bind(this);
     }
 
     render() {
@@ -67,28 +68,42 @@ export class LoadedScatterPlotDataList extends React.Component {
             <Component id={'loaded-data-list'}>
                 <ComponentTitle>Currently in figure</ComponentTitle>
                 <DataContainer>
-                    {this.state.loadedScatterPlotData.map(scatterDataSet => {
-                            if (!scatterDataSet.visible) {
+                    {this.state.loadedData.map(dataSet => {
+                            if (!dataSet.visible) {
                                 return null;
                             }
+
                             let displayName = this.props.algorithms.find(algorithm => {
-                                return algorithm.algorithmName === scatterDataSet.algorithmName
+                                return algorithm.algorithmName === dataSet.algorithmName
                             }).algorithmDisplayName;
 
-                            let title = displayName + ", " + scatterDataSet.graphSize;
+                            let title = displayName + ", " + dataSet.graphSize;
                             return (
-                                <DataSet key={title}>
+                                <DataSet key={title}
+                                         className={'datablock'}
+                                         data-algorithm={dataSet.algorithmName}
+                                         data-graphsize={dataSet.graphSize}>
+
                                     <DataSetLabel>{title}</DataSetLabel>
-                                    <RemoveFromPlotButton onClick={this.hideScatterData}
-                                                          data-algorithm={scatterDataSet.algorithmName}
-                                                          data-graphsize={scatterDataSet.graphSize}>
+                                    <RemoveFromPlotButton onClick={this.closeHandler}>
                                         <CrossIcon width={crossIconSize} height={crossIconSize}/>
                                     </RemoveFromPlotButton>
+
+                                    <DataSetLabel>Show scatter data</DataSetLabel>
+                                    <DerivedDataSetInput type={'checkbox'}
+                                                         onChange={this.checkboxHandler}
+                                                         name={'scatter'}
+                                                         checked={dataSet.scatterVisible}/>
                                     <DataSetLabel>Show average</DataSetLabel>
                                     <DerivedDataSetInput type={'checkbox'}
-                                                         name={scatterDataSet.algorithmName + '-average'}/>
+                                                         onChange={this.checkboxHandler}
+                                                         name={'mean'}
+                                                         checked={dataSet.meanVisible}/>
                                     <DataSetLabel>Show median</DataSetLabel>
-                                    <DerivedDataSetInput type={'checkbox'} name={scatterDataSet.algorithmName + '-median'}/>
+                                    <DerivedDataSetInput type={'checkbox'}
+                                                         onChange={this.checkboxHandler}
+                                                         name={'median'}
+                                                         checked={dataSet.medianVisible}/>
                                 </DataSet>
                             );
                         }
@@ -98,9 +113,18 @@ export class LoadedScatterPlotDataList extends React.Component {
         );
     }
 
-    hideScatterData(event){
-        let algorithm = event.target.dataset.algorithm;
-        let graphsize = event.target.dataset.graphsize;
-        this.props.toggleScatterDataFunction(algorithm, parseInt(graphsize));
+    closeHandler(event){
+        let datablock = event.target.closest('.datablock');
+        let algorithm = datablock.dataset.algorithm;
+        let graphsize = datablock.dataset.graphsize;
+        this.props.hideAllDataFunction(algorithm, parseInt(graphsize));
+    }
+
+    checkboxHandler(event){
+        let datablock = event.target.closest('.datablock');
+        let algorithm = datablock.dataset.algorithm;
+        let graphsize = datablock.dataset.graphsize;
+        let type = event.target.name;
+        this.props.toggleVisibilityFunction(algorithm, parseInt(graphsize), type);
     }
 }

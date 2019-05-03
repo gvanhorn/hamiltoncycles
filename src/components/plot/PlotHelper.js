@@ -16,6 +16,16 @@ const yMap = function (result) {
 };
 const color = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
 
+const meanLine = d3.line()
+    .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
+    .y(function(d) { return getYScale()(d['mean']); }) // set the y values for the line generator
+    .curve(d3.curveMonotoneX); // apply smoothing to the line
+
+const medianLine = d3.line()
+    .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
+    .y(function(d) { return getYScale()(d['median']); }) // set the y values for the line generator
+    .curve(d3.curveMonotoneX); // apply smoothing to the line
+
 export const canvasSetup = function canvasSetup() {
     svg = getCanvasSelection().append("svg")
         .attr("width", getWidth() + margin.left + margin.right)
@@ -57,14 +67,14 @@ export const canvasSetup = function canvasSetup() {
         .text("Relative cost (iterations / nodes)");
 };
 
-export const drawDataPoints = function drawDataPoints(dataArray, className) {
-    svg.selectAll(className)
+export const drawDataPoints = function drawDataPoints(dataArray, classNames) {
+    svg.selectAll(makeSelector(classNames))
         .data(dataArray)
         .enter().append("circle")
         .attr("data-graphid", function (result) {
             return result["graphID"];
         })
-        .attr("class", className)
+        .attr("class", classNames.join(" "))
         .attr("r", 3.5)
         .attr("cx", xMap)
         .attr("cy", yMap)
@@ -77,18 +87,37 @@ export const drawDataPoints = function drawDataPoints(dataArray, className) {
     // .on("click", dataClickHandler);
 };
 
-export function isDrawn(className){
-    return getCanvasElement().getElementsByClassName(className).length > 0;
+export const drawMeanLine = function drawMeanLine(dataArray, classNames){
+    svg.append("path")
+        .datum(dataArray)
+        .attr("d", meanLine)
+        .attr("class", classNames.join(" "))
+        .style("fill", 'none');
+};
+
+export const drawMedianLine = function drawMeanLine(dataArray, classNames){
+    svg.append("path")
+        .datum(dataArray)
+        .attr("d", medianLine)
+        .attr("class", classNames.join(" "))
+        .style("fill", 'none');
+};
+
+export function isDrawn(classNames){
+    return getCanvasElement().querySelectorAll(makeSelector(classNames)).length > 0;
 }
 
-export function hideData(className){
-    console.log("Hiding data:");
-    getCanvasSelection().selectAll("." + className).style("display", "none");
+export function hideData(classNames){
+    getCanvasSelection().selectAll(makeSelector(classNames)).style("display", "none");
 }
 
-export function showData(className) {
-    console.log("Showing data:");
-    getCanvasSelection().selectAll("." +className).style("display", "block");
+export function showData(classNames) {
+    getCanvasSelection().selectAll(makeSelector(classNames)).style("display", "block");
+}
+
+function makeSelector(classNames){
+    let selector = classNames.join(".");
+    return "." + selector;
 }
 
 function getXScale() {

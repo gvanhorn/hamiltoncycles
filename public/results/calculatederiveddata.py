@@ -7,14 +7,12 @@ graphsizes = [16, 24, 32]
 
 def process(algorithm, graphSize):
     inputFile = algorithm + '-' + str(graphSize) + '.json'
-    meanOutputFile = algorithm + '-' + str(graphSize) + '-mean.json'
-    medianOutputFile = algorithm + '-' + str(graphSize) + '-median.json'
+    derivedOutputFile = algorithm + '-' + str(graphSize) + '-derived.json'
 
     with open(inputFile, 'r') as input:
         data = json.load(input)
         buckets = {}
-        means = {}
-        medians = {}
+        derived = []
         for result in data:
             if result['averageDegree'] in buckets.keys():
                 buckets[result['averageDegree']].append(result['relativeCost'])
@@ -22,12 +20,10 @@ def process(algorithm, graphSize):
                 buckets[result['averageDegree']] = [result['relativeCost']]
 
         for averageDegree in buckets.keys():
-            means[averageDegree] = mean(buckets[averageDegree])
-            medians[averageDegree] = median(buckets[averageDegree])
+            derived.append({'averageDegree': averageDegree, 'mean': mean(buckets[averageDegree]), 'median': median(buckets[averageDegree])})
 
-        with open(meanOutputFile, 'w') as meanOutput, open(medianOutputFile, 'w') as medianOutput:
-            json.dump(means, meanOutput)
-            json.dump(medians, medianOutput)
+        with open(derivedOutputFile, 'w') as derivedOutput:
+            json.dump(derived, derivedOutput)
 
 
 for algorithm in algorithms:
