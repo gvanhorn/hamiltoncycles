@@ -16,7 +16,7 @@ const Menu = styled.div`
     position: relative;
     width: 100%;
     height: ${menuHeight}px;
-    background: white;
+    background: rgba(256, 256, 256, 90%);
     border-top: 1px solid;
 `;
 
@@ -27,7 +27,7 @@ const MenuButton = styled.button`
     left: 50%;    
     padding: 0;
     border: 0;
-    background: transparent;
+    background: rgba(256, 256, 256, 90%);
     cursor: pointer;
     display: flex;
     justify-content: flex-start;

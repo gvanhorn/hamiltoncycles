@@ -1,6 +1,15 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {canvasSetup, drawDataPoints, drawMeanLine, drawMedianLine, hideData, isDrawn, showData} from "./PlotHelper";
+import {
+    canvasSetup,
+    drawDataPoints,
+    drawMeanLine,
+    drawMedianLine,
+    hideData,
+    isDrawn,
+    removeLine,
+    showData
+} from "./PlotHelper";
 
 const Canvas = styled.div`
     width: 100%;
@@ -13,6 +22,7 @@ export class PlotCanvas extends Component {
         canvasSetup();
 
         this.updateDrawing = this.updateDrawing.bind(this);
+        this.redrawAllLines = this.redrawAllLines.bind(this);
     }
 
     componentDidUpdate() {
@@ -23,12 +33,13 @@ export class PlotCanvas extends Component {
         });
     }
 
-    updateDrawing(plotData, type){
+    updateDrawing(plotData, type) {
         let classNames = [plotData.algorithmName, "graph-size-" + plotData.graphSize, type];
         if (!isDrawn(classNames)) {
-            switch(type){
+            switch (type) {
                 case 'scatter':
                     drawDataPoints(plotData.data, classNames);
+                    this.redrawAllLines();
                     break;
                 case 'mean':
                     drawMeanLine(plotData.derived, classNames);
@@ -39,8 +50,8 @@ export class PlotCanvas extends Component {
                 default:
                     console.log("unrecognized type for drawing");
             }
-        }else {
-            switch(type){
+        } else {
+            switch (type) {
                 case 'scatter':
                     plotData.scatterVisible ? showData(classNames) : hideData(classNames);
                     break;
@@ -54,6 +65,25 @@ export class PlotCanvas extends Component {
                     console.log('unrecognized type for drawing');
             }
         }
+    }
+
+    redrawAllLines() {
+        console.log("redrawing all lines");
+        this.props.loadedData.forEach(dataSet => {
+            let classNames = [dataSet.algorithmName, "graph-size-" + dataSet.graphSize, 'mean'];
+            removeLine(classNames);
+            drawMeanLine(dataSet.derived, classNames);
+            if (!dataSet.meanVisible) {
+                hideData(classNames)
+            }
+
+            classNames = [dataSet.algorithmName, "graph-size-" + dataSet.graphSize, 'median'];
+            removeLine(classNames);
+            drawMedianLine(dataSet.derived, classNames);
+            if (!dataSet.medianVisible) {
+                hideData(classNames)
+            }
+        });
     }
 
     render() {

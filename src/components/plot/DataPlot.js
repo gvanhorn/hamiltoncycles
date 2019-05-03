@@ -132,6 +132,10 @@ export class DataPlot extends Component {
         });
     }
 
+    componentDidMount(){
+        this.loadData('cetal', 16);
+    }
+
     render() {
         return (
             <Window id={'plot-wrapper'}>

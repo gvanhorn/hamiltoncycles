@@ -95,6 +95,11 @@ export const drawMeanLine = function drawMeanLine(dataArray, classNames){
         .style("fill", 'none');
 };
 
+export const removeLine = function removeLine(classNames) {
+    svg.selectAll(makeSelector(classNames))
+        .exit();
+};
+
 export const drawMedianLine = function drawMeanLine(dataArray, classNames){
     svg.append("path")
         .datum(dataArray)
