@@ -1,6 +1,6 @@
 import React from "react";
 import styled from 'styled-components';
-import {CrossIcon} from "./StyledPlotComponents";
+import {CrossIcon} from "../StyledPlotComponents";
 
 const Component = styled.div`
     border-left: 1px solid;

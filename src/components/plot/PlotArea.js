@@ -9,14 +9,14 @@ import {
     isDrawn,
     removeLine,
     showData
-} from "./PlotHelper";
+} from "./d3/PlotHelper";
 
-const Canvas = styled.div`
+const Area = styled.div`
     width: 100%;
     height: 100%;
 `;
 
-export class PlotCanvas extends Component {
+export class PlotArea extends Component {
 
     componentDidMount() {
         canvasSetup();
@@ -88,9 +88,9 @@ export class PlotCanvas extends Component {
 
     render() {
         return (
-            <Canvas id={'plot-canvas'}>
+            <Area id={'plot-canvas'}>
                 {this.props.children}
-            </Canvas>
+            </Area>
         )
     }
 

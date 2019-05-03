@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {ArrowIcon} from './StyledPlotComponents';
+import {ArrowIcon} from '../StyledPlotComponents';
 
 const menuHeight = 250;
 const buttonSize = 24;

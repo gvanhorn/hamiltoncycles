@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
-import {PlotCanvas} from "./PlotCanvas";
-import {PlotMenu} from "./PlotMenu";
+import {PlotArea} from "./PlotArea";
+import {PlotMenu} from "./interface/PlotMenu";
 import styled from 'styled-components';
 import {PlotComponentHeader} from "./StyledPlotComponents";
-import {LoadScatterPlotDataComponent} from "./LoadScatterPlotDataComponent";
-import {LoadedScatterPlotDataList} from "./LoadedScatterPlotDataList";
+import {LoadScatterPlotDataComponent} from "./interface/LoadScatterPlotDataComponent";
+import {LoadedScatterPlotDataList} from "./interface/LoadedScatterPlotDataList";
 
 const Window = styled.div`
     width: 100%;
@@ -140,7 +140,7 @@ export class DataPlot extends Component {
         return (
             <Window id={'plot-wrapper'}>
                 <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
-                <PlotCanvas loadedData={this.state.loadedData}/>
+                <PlotArea loadedData={this.state.loadedData}/>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
                                                   graphSizes={this.state.graphSizes}
