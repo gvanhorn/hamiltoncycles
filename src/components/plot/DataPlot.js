@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {PlotComponentHeader} from "./StyledPlotComponents";
 import {LoadScatterPlotDataComponent} from "./interface/LoadScatterPlotDataComponent";
 import {LoadedScatterPlotDataList} from "./interface/LoadedScatterPlotDataList";
+import {DetailOverlay} from "./interface/DetailOverlay";
 
 const Window = styled.div`
     width: 100%;
@@ -22,7 +23,8 @@ export class DataPlot extends Component {
             graphSizes: graphSizes,
             lineTypes: lineTypes,
             loadedData: [],
-            isLoading: false
+            isLoading: false,
+            overlayOpen: true
         };
 
         this.loadData = this.loadData.bind(this);
@@ -31,6 +33,8 @@ export class DataPlot extends Component {
         this.toggleVisibility = this.toggleVisibility.bind(this);
         this.hideAllData = this.hideAllData.bind(this);
         this.fetchJSONData = this.fetchJSONData.bind(this);
+        this.overlayCloseHandler = this.overlayCloseHandler.bind(this);
+        this.overlayOpenHandler = this.overlayOpenHandler.bind(this);
     }
 
     loadData(algorithmName, graphSize) {
@@ -63,7 +67,6 @@ export class DataPlot extends Component {
                 plotData.derived = values[1].sort(function(a, b){return a['averageDegree'] - b['averageDegree']});
                 let loadedData = this.state.loadedData;
                 loadedData.push(plotData);
-                console.log(loadedData);
                 this.setState({isLoading: false, loadedData: loadedData});
             });
     }
@@ -83,7 +86,6 @@ export class DataPlot extends Component {
 
     hideAllData(algorithmName, graphSize){
         let data = this.getData(algorithmName, graphSize);
-        console.log(data);
         data.visible = false;
         data.scatterVisible = false;
         data.meanVisible = false;
@@ -136,11 +138,24 @@ export class DataPlot extends Component {
         this.loadData('cetal', 16);
     }
 
+    overlayCloseHandler(){
+        this.setState({overlayOpen: false});
+    }
+
+    overlayOpenHandler(){
+        this.setState({overlayOpen: true});
+    }
+
     render() {
+        let popup = null;
+        if(this.state.overlayOpen){
+            popup = (<DetailOverlay closeHandler={this.overlayCloseHandler}/>)
+        }
+
         return (
             <Window id={'plot-wrapper'}>
                 <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
-                <PlotArea loadedData={this.state.loadedData}/>
+                <PlotArea loadedData={this.state.loadedData} overlayOpenHandler={this.overlayOpenHandler}/>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
                                                   graphSizes={this.state.graphSizes}
@@ -153,6 +168,7 @@ export class DataPlot extends Component {
                                                toggleVisibilityFunction={this.toggleVisibility}
                                                hideAllDataFunction={this.hideAllData}/>
                 </PlotMenu>
+                {popup}
             </Window>
         )
     }

@@ -38,7 +38,7 @@ export class PlotArea extends Component {
         if (!isDrawn(classNames)) {
             switch (type) {
                 case 'scatter':
-                    drawDataPoints(plotData.data, classNames);
+                    drawDataPoints(plotData.data, classNames, this.props.overlayOpenHandler);
                     this.redrawAllLines();
                     break;
                 case 'mean':
@@ -68,7 +68,6 @@ export class PlotArea extends Component {
     }
 
     redrawAllLines() {
-        console.log("redrawing all lines");
         this.props.loadedData.forEach(dataSet => {
             let classNames = [dataSet.algorithmName, "graph-size-" + dataSet.graphSize, 'mean'];
             removeLine(classNames);

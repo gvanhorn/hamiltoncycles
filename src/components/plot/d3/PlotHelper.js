@@ -67,7 +67,7 @@ export const canvasSetup = function canvasSetup() {
         .text("Relative cost (iterations / nodes)");
 };
 
-export const drawDataPoints = function drawDataPoints(dataArray, classNames) {
+export const drawDataPoints = function drawDataPoints(dataArray, classNames, clickHandler) {
     svg.selectAll(makeSelector(classNames))
         .data(dataArray)
         .enter().append("circle")
@@ -80,11 +80,9 @@ export const drawDataPoints = function drawDataPoints(dataArray, classNames) {
         .attr("cy", yMap)
         .style("fill", function (result) {
             return color(result["hamiltonian"]);
-        });
-    // .style("display", "none")
-    // .on("mouseover", dataMouseOver)
-    // .on("mouseout", dataMouseOut)
-    // .on("click", dataClickHandler);
+        })
+        .style("cursor", "pointer")
+        .on("click", clickHandler);
 };
 
 export const drawMeanLine = function drawMeanLine(dataArray, classNames){

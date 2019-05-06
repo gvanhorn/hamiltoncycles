@@ -5,7 +5,7 @@ import {ArrowIcon} from '../StyledPlotComponents';
 const menuHeight = 250;
 const buttonSize = 24;
 
-const MenuWrapper = styled.nav`
+const MenuWrapper = styled.div`
     width: 100%;
     height: 100%;
     margin: ${props => props.isOpen ? `-${menuHeight}px` : `0`} 0 0 0;
