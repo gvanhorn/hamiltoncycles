@@ -25,10 +25,15 @@ const StyledSelect = styled.select`
 const StyledButton = styled.button`
     margin-top: .5em;
     padding: 5px;
-    border: 0;
+    border: 1px solid;
     cursor: pointer;
     grid-column-start: span 2;
     height: 2em;
+    background: white;
+    
+    &:hover {
+        background: radial-gradient(#FFF, #CCC);
+    }
 `;
 
 const loadingAnimationWidth = 100;

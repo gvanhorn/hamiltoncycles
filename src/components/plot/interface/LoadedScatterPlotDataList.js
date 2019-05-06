@@ -1,6 +1,6 @@
 import React from "react";
 import styled from 'styled-components';
-import {CrossIcon} from "../StyledPlotComponents";
+import {CrossIcon, DownloadIcon} from "../StyledPlotComponents";
 
 const Component = styled.div`
     border-left: 1px solid;
@@ -9,14 +9,27 @@ const Component = styled.div`
     margin: 0;
 `;
 
-const ComponentTitle = styled.h3`
-    margin: .5em;
+const DownloadButton = styled.button`
+    margin: .5em 0 0 .5em;
+    padding: .5em;
+    border: .5px solid;
+    cursor: pointer;
+    background: white;
+    
+    &:hover {
+        background: radial-gradient(#FFF, #CCC);
+    }
+`;
+
+const DownloadButtonText = styled.span`
+    margin: auto .5em auto 0;
 `;
 
 const DataContainer = styled.div`
     display: flex;
     align-items: flex-start;
-    padding: .5em;
+    margin: .5em 0 0 0;
+    padding: 0;
     flex-wrap: wrap;
     overflow: auto;
 `;
@@ -27,7 +40,7 @@ const DataSet = styled.div`
     grid-template-columns: 80% 20%;
     border: 1px solid;
     padding: .5em;
-    margin: .5em;
+    margin: 0 0 0 .5em;
 `;
 
 const DataSetLabel = styled.p`
@@ -61,12 +74,13 @@ export class LoadedScatterPlotDataList extends React.Component {
 
         this.checkboxHandler = this.checkboxHandler.bind(this);
         this.closeHandler = this.closeHandler.bind(this);
+        this.downloadHandler = this.downloadHandler.bind(this);
     }
 
     render() {
         return (
             <Component id={'loaded-data-list'}>
-                <ComponentTitle>Currently in figure</ComponentTitle>
+                <DownloadButton onClick={this.downloadHandler}><DownloadButtonText>Download the current figure</DownloadButtonText><DownloadIcon width={'1.5em'} height={'1.5em'}/></DownloadButton>
                 <DataContainer>
                     {this.state.loadedData.map(dataSet => {
                             if (!dataSet.visible) {
@@ -111,6 +125,12 @@ export class LoadedScatterPlotDataList extends React.Component {
                 </DataContainer>
             </Component>
         );
+    }
+
+    downloadHandler(){
+        let svg = document.querySelector('#plot-canvas svg');
+        let saveSVG = require('save-svg-as-png');
+        saveSVG.saveSvgAsPng(svg, "diagram.png", {encoderOptions: 1, backgroundColor: '#FFF'});
     }
 
     closeHandler(event){
