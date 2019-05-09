@@ -1,5 +1,6 @@
 import React from "react";
 import styled from 'styled-components';
+import {algorithmDisplayNames, algorithms, graphSizes} from "../DataPlot";
 
 const StyledLoadScatterPlotDataComponent = styled.div`
     padding: 0 .5em 0 0;
@@ -32,7 +33,7 @@ const StyledButton = styled.button`
     background: white;
     
     &:hover {
-        background: radial-gradient(#FFF, #CCC);
+        background: #c6e2ff;
     }
 `;
 
@@ -56,8 +57,8 @@ export class LoadScatterPlotDataComponent extends React.Component {
         super(props);
 
         this.state = {
-            algorithm: this.props.algorithms[0].algorithmName,
-            graphSize: this.props.graphSizes[0]
+            algorithm: algorithms[0],
+            graphSize: graphSizes[0]
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -84,15 +85,15 @@ export class LoadScatterPlotDataComponent extends React.Component {
                 <ComponentTitle>Add data to the figure</ComponentTitle>
                 <StyledLabel>Algorithm:</StyledLabel>
                 <StyledSelect value={this.state.algorithm} name='algorithm' onChange={this.handleChange}>
-                    {this.props.algorithms.map(algorithm => (
-                            <option key={algorithm.algorithmName}
-                                    value={algorithm.algorithmName}>{algorithm.algorithmDisplayName}</option>
+                    {algorithms.map(algorithm => (
+                            <option key={algorithm}
+                                    value={algorithm}>{algorithmDisplayNames[algorithm]}</option>
                         )
                     )}
                 </StyledSelect>
                 <StyledLabel>Graph size:</StyledLabel>
                 <StyledSelect value={this.state.graphSize} name='graphSize' onChange={this.handleChange}>
-                    {this.props.graphSizes.map(graphSize => (
+                    {graphSizes.map(graphSize => (
                             <option key={graphSize} value={graphSize}>{graphSize}</option>
                         )
                     )}

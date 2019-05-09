@@ -1,6 +1,7 @@
 import React from "react";
 import styled from 'styled-components';
 import {CrossIcon, DownloadIcon} from "../StyledPlotComponents";
+import {algorithmDisplayNames} from "../DataPlot";
 
 const Component = styled.div`
     border-left: 1px solid;
@@ -17,7 +18,7 @@ const DownloadButton = styled.button`
     background: white;
     
     &:hover {
-        background: radial-gradient(#FFF, #CCC);
+        background-color: #c6e2ff;
     }
 `;
 
@@ -87,9 +88,7 @@ export class LoadedScatterPlotDataList extends React.Component {
                                 return null;
                             }
 
-                            let displayName = this.props.algorithms.find(algorithm => {
-                                return algorithm.algorithmName === dataSet.algorithmName
-                            }).algorithmDisplayName;
+                            let displayName = algorithmDisplayNames[dataSet.algorithmName];
 
                             let title = displayName + ", " + dataSet.graphSize;
                             return (

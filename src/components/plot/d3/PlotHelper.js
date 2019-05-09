@@ -71,9 +71,6 @@ export const drawDataPoints = function drawDataPoints(dataArray, classNames, cli
     svg.selectAll(makeSelector(classNames))
         .data(dataArray)
         .enter().append("circle")
-        .attr("data-graphid", function (result) {
-            return result["graphID"];
-        })
         .attr("class", classNames.join(" "))
         .attr("r", 3.5)
         .attr("cx", xMap)
@@ -82,7 +79,12 @@ export const drawDataPoints = function drawDataPoints(dataArray, classNames, cli
             return color(result["hamiltonian"]);
         })
         .style("cursor", "pointer")
-        .on("click", clickHandler);
+        .on("click", function(result){
+            let className = classNames.find(className => /graph-size-[0-9]+/.test(className));
+            console.log(className);
+            let graphSize = parseInt(className.match(/[0-9]+/));
+            clickHandler(graphSize, result['graphID']);
+        });
 };
 
 export const drawMeanLine = function drawMeanLine(dataArray, classNames){

@@ -38,7 +38,7 @@ export class PlotArea extends Component {
         if (!isDrawn(classNames)) {
             switch (type) {
                 case 'scatter':
-                    drawDataPoints(plotData.data, classNames, this.props.overlayOpenHandler);
+                    drawDataPoints(plotData.data, classNames, this.props.overlayOpener);
                     this.redrawAllLines();
                     break;
                 case 'mean':

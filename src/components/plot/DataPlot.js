@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {PlotComponentHeader} from "./StyledPlotComponents";
 import {LoadScatterPlotDataComponent} from "./interface/LoadScatterPlotDataComponent";
 import {LoadedScatterPlotDataList} from "./interface/LoadedScatterPlotDataList";
-import {DetailOverlay} from "./interface/DetailOverlay";
+import {DetailOverlay} from "./interface/overlay/DetailOverlay";
 
 const Window = styled.div`
     width: 100%;
@@ -19,12 +19,10 @@ export class DataPlot extends Component {
         super(props);
 
         this.state = {
-            algorithms: algorithms,
-            graphSizes: graphSizes,
             lineTypes: lineTypes,
             loadedData: [],
             isLoading: false,
-            overlayOpen: true
+            overlayOpen: false
         };
 
         this.loadData = this.loadData.bind(this);
@@ -34,7 +32,7 @@ export class DataPlot extends Component {
         this.hideAllData = this.hideAllData.bind(this);
         this.fetchJSONData = this.fetchJSONData.bind(this);
         this.overlayCloseHandler = this.overlayCloseHandler.bind(this);
-        this.overlayOpenHandler = this.overlayOpenHandler.bind(this);
+        this.overlayOpener = this.overlayOpener.bind(this);
     }
 
     loadData(algorithmName, graphSize) {
@@ -64,7 +62,9 @@ export class DataPlot extends Component {
         Promise.all([this.fetchJSONData(dataUrl), this.fetchJSONData(derivedDataUrl)])
             .then(values => {
                 plotData.data = values[0];
-                plotData.derived = values[1].sort(function(a, b){return a['averageDegree'] - b['averageDegree']});
+                plotData.derived = values[1].sort(function (a, b) {
+                    return a['averageDegree'] - b['averageDegree']
+                });
                 let loadedData = this.state.loadedData;
                 loadedData.push(plotData);
                 this.setState({isLoading: false, loadedData: loadedData});
@@ -84,7 +84,7 @@ export class DataPlot extends Component {
             });
     }
 
-    hideAllData(algorithmName, graphSize){
+    hideAllData(algorithmName, graphSize) {
         let data = this.getData(algorithmName, graphSize);
         data.visible = false;
         data.scatterVisible = false;
@@ -100,7 +100,7 @@ export class DataPlot extends Component {
 
     toggleVisibility(algorithmName, graphSize, dataType) {
         let data = this.getData(algorithmName, graphSize);
-        switch(dataType){
+        switch (dataType) {
             case 'scatter':
                 data.scatterVisible = !data.scatterVisible;
                 break;
@@ -134,48 +134,43 @@ export class DataPlot extends Component {
         });
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.loadData('cetal', 16);
     }
 
-    overlayCloseHandler(){
+    overlayCloseHandler() {
         this.setState({overlayOpen: false});
     }
 
-    overlayOpenHandler(){
-        this.setState({overlayOpen: true});
+    overlayOpener(graphSize, graphID) {
+        this.setState({overlayOpen: true, overlayGraphSize: graphSize, overlayGraphID: graphID});
     }
 
     render() {
-        let popup = null;
-        if(this.state.overlayOpen){
-            popup = (<DetailOverlay closeHandler={this.overlayCloseHandler}/>)
-        }
-
         return (
             <Window id={'plot-wrapper'}>
                 <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
-                <PlotArea loadedData={this.state.loadedData} overlayOpenHandler={this.overlayOpenHandler}/>
+                <PlotArea loadedData={this.state.loadedData} overlayOpener={this.overlayOpener}/>
                 <PlotMenu>
-                    <LoadScatterPlotDataComponent algorithms={this.state.algorithms}
-                                                  graphSizes={this.state.graphSizes}
-                                                  isLoading={this.state.isLoading}
+                    <LoadScatterPlotDataComponent isLoading={this.state.isLoading}
                                                   errorLoadingData={this.state.errorLoadingData}
                                                   loadDataFunction={this.loadData}/>
                     <LoadedScatterPlotDataList loadedData={this.state.loadedData}
-                                               algorithms={this.state.algorithms}
-                                               graphSizes={this.state.graphSizes}
                                                toggleVisibilityFunction={this.toggleVisibility}
                                                hideAllDataFunction={this.hideAllData}/>
                 </PlotMenu>
-                {popup}
+                <DetailOverlay closeHandler={this.overlayCloseHandler}
+                               isOpen={this.state.overlayOpen}
+                               graphSize={this.state.overlayGraphSize}
+                               graphID={this.state.overlayGraphID}
+                               loadedData={this.state.loadedData}/>
             </Window>
         )
     }
 }
 
-const graphSizes = [16, 24, 32];
-const lineTypes = [
+export const graphSizes = [16, 24, 32];
+export const lineTypes = [
     {
         id: 'average',
         displayName: 'Average'
@@ -186,23 +181,12 @@ const lineTypes = [
     }
 ];
 
-const algorithms = [{
-    algorithmName: 'cetal',
-    algorithmDisplayName: 'Cetal'
-}, {
-    algorithmName: 'martello',
-    algorithmDisplayName: 'Martello'
-}, {
-    algorithmName: 'nakeddepthfirst',
-    algorithmDisplayName: 'Depth First, no heuristics'
-}, {
-    algorithmName: 'rubin',
-    algorithmDisplayName: 'Rubin'
-}, {
-    algorithmName: 'vacul',
-    algorithmDisplayName: 'Vandergriend & Culberson'
-}, {
-    algorithmName: 'vanhorn',
-    algorithmDisplayName: 'van Horn'
+export const algorithms = ['cetal','martello','nakeddepthfirst','rubin','vacul','vanhorn'];
+export const algorithmDisplayNames = {
+    'cetal': "Cetal",
+    'martello': "Martello",
+    'nakeddepthfirst': "Depth first, no heuristic",
+    'rubin': "Rubin",
+    'vacul': "Vandergriend & Culberson",
+    'vanhorn': "van Horn"
 }
-];
