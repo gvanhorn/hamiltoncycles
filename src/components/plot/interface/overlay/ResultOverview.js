@@ -31,55 +31,6 @@ const ResultsTableRow = styled.tr`
 
 export class ResultOverview extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            results: []
-        };
-
-        this.fetchJSONData = this.fetchJSONData.bind(this);
-    }
-
-    componentDidMount() {
-        console.log("Result overview mounted");
-        console.log(this.props);
-        let dataSets = this.props.loadedData.filter(dataSet => {
-            return (dataSet['graphSize'] === this.props.graphSize);
-        });
-
-        let results = [];
-        dataSets.forEach(dataSet => {
-            results.push(dataSet.data.find(result => {
-                return result['graphID'] === this.props.graphID;
-            }));
-        });
-
-        this.setState({results: results});
-
-        // let dataUrl = window.location + "graphs/indexed-" + this.props.graphSize + "-node-test-set/" + this.props.graphID + ".json";
-        // Promise.resolve(this.fetchJSONData(dataUrl)).then(
-        //     graph => {
-        //         this.setState({graph:graph, results: results});
-        //     }
-        // );
-    }
-
-    fetchJSONData(url) {
-        console.log(url);
-        return fetch(url)
-            .then(response => response.json())
-            .then((jsonData) => {
-                this.setState({errorLoadingData: false});
-                return jsonData;
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({errorLoadingData: true});
-            });
-    }
-
-
     render() {
         return (
             <ResultPane>
@@ -94,7 +45,7 @@ export class ResultOverview extends React.Component {
                     </tr>
                     </thead>
                     <tbody>
-                    {this.state.results.map(result => {
+                    {this.props.results.map(result => {
                         return (
                             <ResultsTableRow key={result['algorithm']}>
                                 <th>{algorithmDisplayNames[result['algorithm']]}</th>

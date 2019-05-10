@@ -2,6 +2,7 @@ import React from "react";
 import styled from 'styled-components';
 import {CrossIcon} from "../../StyledPlotComponents";
 import {ResultOverview} from "./ResultOverview";
+import {GraphExplorer} from "./GraphExplorer";
 
 const Overlay = styled.div`
     position: absolute;
@@ -22,6 +23,7 @@ const OverlayContent = styled.div`
     background: #FFF;
     border: 2px solid;
     border-radius: 10px;
+    overflow: hidden;
 `;
 
 const closeOverlayButtonSize = 20;
@@ -58,17 +60,15 @@ const DetailTabActive = styled.div`
 `;
 
 const DetailTabContents = styled.div`
-    
-`;
-
-const GraphExplorer = styled.div`
+    width: 100%;
+    height: 100%;
 `;
 
 const ConnectivityHistogram = styled.div`
 `;
 
-// const tabs = ["results", "histogram", "explorer"];
-const tabs = ["results"];
+const tabs = ["results", "histogram", "explorer"];
+// const tabs = ["results"];
 const tabDisplayNames = {
     'results': "Results",
     'histogram': "Connectivity histogram",
@@ -81,19 +81,55 @@ export class DetailOverlay extends React.Component {
         super(props);
 
         this.state = {
-            isOpen: this.props.isOpen,
-            activeTab: "results"
+            isOpen: true,
+            activeTab: "explorer"
         };
 
         this.activateTab = this.activateTab.bind(this);
+        this.fetchJSONData = this.fetchJSONData.bind(this);
     }
 
     activateTab(event){
         this.setState({activeTab: event.target.dataset.tabname});
     }
 
+    componentDidMount(){
+        let dataSets = this.props.loadedData.filter(dataSet => {
+            return (dataSet['graphSize'] === this.props.graphSize);
+        });
+
+        let results = [];
+        dataSets.forEach(dataSet => {
+            results.push(dataSet.data.find(result => {
+                return result['graphID'] === this.props.graphID;
+            }));
+        });
+
+        let dataUrl = window.location + "graphs/indexed-" + this.props.graphSize + "-node-test-set/" + this.props.graphID + ".json";
+        Promise.resolve(this.fetchJSONData(dataUrl)).then(graph =>{
+            this.setState({
+                results: results,
+                graph: graph
+            });
+        });
+    }
+
+    fetchJSONData(url) {
+        console.log(url);
+        return fetch(url)
+            .then(response => response.json())
+            .then((jsonData) => {
+                this.setState({errorLoadingData: false});
+                return jsonData;
+            })
+            .catch((error) => {
+                console.log(error);
+                this.setState({errorLoadingData: true});
+            });
+    }
+
     render(){
-        if(this.props.isOpen) {
+        if(this.state.isOpen) {
             return (
                 <Overlay>
                     <OverlayContent>
@@ -113,13 +149,13 @@ export class DetailOverlay extends React.Component {
                             {(this.state.activeTab === 'results') ? (
                                 <ResultOverview graphID={this.props.graphID}
                                                 graphSize={this.props.graphSize}
-                                                loadedData={this.props.loadedData}/>
+                                                results={this.state.results}/>
                             ) : ''}
                             {(this.state.activeTab === 'histogram') ? (
                                 <ConnectivityHistogram/>
                             ) : ''}
                             {(this.state.activeTab === 'explorer') ? (
-                                <GraphExplorer />
+                                <GraphExplorer graph={this.state.graph} results={this.state.results}/>
                             ) : ''}
                         </DetailTabContents>
                     </OverlayContent>

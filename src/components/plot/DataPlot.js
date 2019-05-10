@@ -159,11 +159,10 @@ export class DataPlot extends Component {
                                                toggleVisibilityFunction={this.toggleVisibility}
                                                hideAllDataFunction={this.hideAllData}/>
                 </PlotMenu>
-                <DetailOverlay closeHandler={this.overlayCloseHandler}
-                               isOpen={this.state.overlayOpen}
-                               graphSize={this.state.overlayGraphSize}
-                               graphID={this.state.overlayGraphID}
-                               loadedData={this.state.loadedData}/>
+                {this.state.overlayOpen ? (<DetailOverlay closeHandler={this.overlayCloseHandler}
+                                                          graphSize={this.state.overlayGraphSize}
+                                                          graphID={this.state.overlayGraphID}
+                                                          loadedData={this.state.loadedData}/>): ''}
             </Window>
         )
     }

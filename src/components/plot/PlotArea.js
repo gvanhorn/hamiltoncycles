@@ -9,7 +9,7 @@ import {
     isDrawn,
     removeLine,
     showData
-} from "./d3/PlotHelper";
+} from "../../d3/PlotHelper";
 
 const Area = styled.div`
     width: 100%;

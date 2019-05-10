@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 
 var svg;
 
-const maximumAverageDegree = 31;
+export const maximumAverageDegree = 31;
 const maximumRelativeCost = 10000;
 const margin = {top: 40, right: 40, bottom: 70, left: 70},
     xPadding = 0,
@@ -81,7 +81,6 @@ export const drawDataPoints = function drawDataPoints(dataArray, classNames, cli
         .style("cursor", "pointer")
         .on("click", function(result){
             let className = classNames.find(className => /graph-size-[0-9]+/.test(className));
-            console.log(className);
             let graphSize = parseInt(className.match(/[0-9]+/));
             clickHandler(graphSize, result['graphID']);
         });
