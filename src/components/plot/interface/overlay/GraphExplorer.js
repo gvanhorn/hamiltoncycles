@@ -9,16 +9,27 @@ const ExplorerCanvas = styled.div`
 
 export class GraphExplorer extends React.Component {
 
+    constructor(props){
+        super(props);
+        this.setupForceDirectedGraph = this.setupForceDirectedGraph.bind(this);
+    }
+
     componentDidMount(){
         explorerCanvasSetup();
-        if(this.props.graph) {
-            drawForceDirectedGraph(this.props.graph);
-        }
+        this.setupForceDirectedGraph();
     }
 
     componentDidUpdate(){
+        this.setupForceDirectedGraph();
+    }
+
+    setupForceDirectedGraph(){
         if(this.props.graph) {
-            drawForceDirectedGraph(this.props.graph);
+            let hamiltonCycles = {};
+            this.props.results.forEach(result =>{
+                hamiltonCycles[result['algorithm']] = result['path']
+            });
+            drawForceDirectedGraph(this.props.graph, hamiltonCycles);
         }
     }
 

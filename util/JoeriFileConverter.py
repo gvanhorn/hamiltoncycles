@@ -3,30 +3,30 @@ import json
 inputFile = 'vandegriend-32.json'
 outputFile = 'vandegriend-32-prepped.json'
 
-algorithms = ['cheeseman', 'martello', 'nakeddepthfirst', 'rubin', 'vandegriend', 'vanhorn']
+algorithms = ['cetal', 'martello', 'nakeddepthfirst', 'rubin', 'vacul', 'vanhorn']
 graphsizes = [16, 24, 32]
 
 
 def prepResults(algorithm, graphSize):
     inputFile = 'results/result-' + algorithm + '-' + str(graphSize) + '.json'
-    outputFile = '../prepared-results/' + algorithm + "-" + str(graphSize) + '.json'
+    outputFile = 'prepared-results/' + algorithm + "-" + str(graphSize) + '.json'
 
     with open(inputFile, 'r') as input, open(outputFile, 'w') as output:
-        newformatresults = []
         oldformatresults = json.load(input)
         for oldresult in oldformatresults:
-            newformat = {}
+            result = {}
             graphID = oldresult['id']
-            newformat['graphID'] = graphID
-            newformat['averageDegree'] = oldresult['degree']
-            newformat['hamiltonian'] = oldresult['hamiltonian']
-            newformat['iterations'] = oldresult['iterations']
-            newformat['relativeCost'] = oldresult['iterations'] / 32
-            newformat['milliseconds'] = int(oldresult['nanoseconds'] / 1000000)
-            newformat['path'] = oldresult['path']
-            newformat['algorithm'] = oldresult['algorithm']
-            newformatresults.append(newformat)
-        json.dump(newformatresults, output)
+            result['graphID'] = graphID
+            result['averageDegree'] = oldresult['degree']
+            result['hamiltonian'] = oldresult['hamiltonian']
+            result['iterations'] = oldresult['iterations']
+            result['relativeCost'] = oldresult['iterations'] / 32
+            result['nanoseconds'] = oldresult['nanoseconds']
+            result['path'] = oldresult['path']
+            result['algorithm'] = algorithm
+            result['graphSize'] = graphSize
+            jsonString = json.dumps(result)
+            output.write(jsonString + "\n")
 
 
 for algorithm in algorithms:

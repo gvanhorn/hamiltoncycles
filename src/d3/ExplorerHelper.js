@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import {maximumAverageDegree} from "./PlotHelper";
 
 function getWidth() {
     return document.getElementById("graph-explorer").getBoundingClientRect().width;
@@ -29,50 +28,24 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
         nodes.push({x: getWidth()/(i+1), y:getHeight()/(i+1), degree:degreeMap[i], id:i});
     }
 
-    // //If there is an HC:
-    // let hamiltonSources = [];
-    // let hamiltonTargets = [];
-    // if(hamiltonCycle){
-    //     for(i=0; i<hamiltonCycle.length-1; i++){
-    //         hamiltonSources.push(hamiltonCycle[i].id);
-    //         hamiltonTargets.push(hamiltonCycle[i+1].id);
-    //     }
-    // }
-
     //Initialize all edges
     let edges = graph.edges;
     let links = [];
     for(let i=0; i<edges.length; i++){
         let source = edges[i].endpoints[0].id;
         let target = edges[i].endpoints[1].id;
-        // let sourceIndex = hamiltonSources.indexOf(source);
-        // let sourceIndex2 = hamiltonTargets.indexOf(source);
-        // let targetIndex = hamiltonTargets.indexOf(target);
-        // let targetIndex2 = hamiltonSources.indexOf(target);
-        // if(sourceIndex != -1 && (sourceIndex === targetIndex || sourceIndex2 === targetIndex2)){
-        //     links.push({source:source, target:target, id:i, type:"hc"});
-        // }else{
-            links.push({source:source, target:target, id:i, type:"regular"});
-        // }
+        links.push({source:source, target:target, id:i, type:"regular"});
     }
-
-
 
     //Define a color scale based on degree of a node
     let nodecolor = d3.scaleLinear()
-        .domain([0, maximumAverageDegree])
+        .domain([0, graph.vertices.length-1])
         .range(["white", "#b30000"]);
-
-    //Define color scale based on the type of link
-    let edgecolor = d3.scaleOrdinal()
-        .domain(["regular", "hc"])
-        .range(["gray", "#33cc33"]);
 
     //Define and start the force layout
     force = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(-1000))
-        .force("link", d3.forceLink(links).distance(20).id(d => d.id))
-        // .size([graphWidth, graphHeight])
+        .force("link", d3.forceLink(links).distance(getWidth()/graph.vertices.length).id(d => d.id))
         .force('center', d3.forceCenter(getWidth() / 2, getHeight() / 2))
         .force("x", d3.forceX())
         .force("y", d3.forceY())
@@ -83,7 +56,7 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
         .data(links)
         .enter().append('line')
         .attr('class', 'link')
-        .attr('stroke', function(d){return edgecolor(d.type)});
+        .attr('stroke', 'gray');
 
     //Enter all the nodes
     let nodeElements = explorerSVG.selectAll(".node")
@@ -91,6 +64,7 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
         .enter().append("g")
         .attr("class", "node");
 
+    //Add drag functionality
     nodeElements.call(d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
@@ -108,7 +82,7 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
         .attr("text-anchor", "middle")
         .attr("dy", ".4em")
         .style("pointer-events", "none")
-        .text(function(d){return d.degree});
+        .text(function(d){return d.id});
 
     //Define animation of the layout.
     force.on('tick', function(){
