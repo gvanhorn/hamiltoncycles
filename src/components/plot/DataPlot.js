@@ -6,12 +6,21 @@ import {PlotComponentHeader} from "./StyledPlotComponents";
 import {LoadScatterPlotDataComponent} from "./interface/LoadScatterPlotDataComponent";
 import {LoadedScatterPlotDataList} from "./interface/LoadedScatterPlotDataList";
 import {DetailOverlay} from "./interface/overlay/DetailOverlay";
+import {
+    Stitch,
+    AnonymousCredential,
+    RemoteMongoClient
+} from "mongodb-stitch-browser-sdk";
 
 const Window = styled.div`
     width: 100%;
     height: 100vh;
     overflow: hidden;
 `;
+
+const client = Stitch.initializeDefaultAppClient('hamilton-cycles-backend-dbwps');
+const mongodb = client.getServiceClient(RemoteMongoClient.factory, 'hamilton-cycles-atlas');
+const db = mongodb.db('hamiltoncycles');
 
 export class DataPlot extends Component {
 
@@ -30,7 +39,6 @@ export class DataPlot extends Component {
         this.getData = this.getData.bind(this);
         this.toggleVisibility = this.toggleVisibility.bind(this);
         this.hideAllData = this.hideAllData.bind(this);
-        this.fetchJSONData = this.fetchJSONData.bind(this);
         this.overlayCloseHandler = this.overlayCloseHandler.bind(this);
         this.overlayOpener = this.overlayOpener.bind(this);
     }
@@ -56,32 +64,25 @@ export class DataPlot extends Component {
         plotData.meanVisible = true;
         plotData.medianVisible = true;
 
-        let scatterPlotDataID = algorithmName + '-' + graphSize.toString();
-        let dataUrl = window.location + "results/" + scatterPlotDataID + ".json";
-        let derivedDataUrl = window.location + "results/" + scatterPlotDataID + "-derived.json";
-        Promise.all([this.fetchJSONData(dataUrl), this.fetchJSONData(derivedDataUrl)])
-            .then(values => {
-                plotData.data = values[0];
-                plotData.derived = values[1].sort(function (a, b) {
-                    return a['averageDegree'] - b['averageDegree']
-                });
-                let loadedData = this.state.loadedData;
-                loadedData.push(plotData);
-                this.setState({isLoading: false, loadedData: loadedData});
-            });
-    }
-
-    fetchJSONData(url) {
-        return fetch(url)
-            .then(response => response.json())
-            .then((jsonData) => {
-                this.setState({errorLoadingData: false});
-                return jsonData;
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({errorLoadingData: true});
-            });
+        Promise.all(
+            [db.collection("results")
+                .find({algorithm: algorithmName, graphSize: graphSize})
+                .toArray(),
+            db.collection("derivedresults")
+                .find({algorithm: algorithmName, graphSize: graphSize})
+                .toArray()
+                .then((docs) => {
+                    return docs.sort(function (a, b) {
+                        return a['averageDegree'] - b['averageDegree']
+                    })
+                })]
+        ).then((values) => {
+            plotData.data = values[0];
+            plotData.derived = values[1];
+            let loadedData = this.state.loadedData;
+            loadedData.push(plotData);
+            this.setState({isLoading: false, loadedData: loadedData});
+        })
     }
 
     hideAllData(algorithmName, graphSize) {
@@ -135,7 +136,19 @@ export class DataPlot extends Component {
     }
 
     componentDidMount() {
-        this.loadData('cetal', 16);
+        client.auth
+            .loginWithCredential(new AnonymousCredential())
+            .then(stitchUser => {
+                this.setState({
+                    stitchUser: stitchUser
+                });
+                this.loadData('cetal', 16);
+            })
+            .catch(error => this.setState({
+                error: error
+            }));
+
+
     }
 
     overlayCloseHandler() {
@@ -162,7 +175,7 @@ export class DataPlot extends Component {
                 {this.state.overlayOpen ? (<DetailOverlay closeHandler={this.overlayCloseHandler}
                                                           graphSize={this.state.overlayGraphSize}
                                                           graphID={this.state.overlayGraphID}
-                                                          loadedData={this.state.loadedData}/>): ''}
+                                                          loadedData={this.state.loadedData}/>) : ''}
             </Window>
         )
     }
@@ -180,7 +193,7 @@ export const lineTypes = [
     }
 ];
 
-export const algorithms = ['cetal','martello','nakeddepthfirst','rubin','vacul','vanhorn'];
+export const algorithms = ['cetal', 'martello', 'nakeddepthfirst', 'rubin', 'vacul', 'vanhorn'];
 export const algorithmDisplayNames = {
     'cetal': "Cetal",
     'martello': "Martello",
