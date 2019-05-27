@@ -82,50 +82,14 @@ export class DetailOverlay extends React.Component {
 
         this.state = {
             isOpen: true,
-            activeTab: "explorer"
+            activeTab: "results"
         };
 
         this.activateTab = this.activateTab.bind(this);
-        this.fetchJSONData = this.fetchJSONData.bind(this);
     }
 
     activateTab(event){
         this.setState({activeTab: event.target.dataset.tabname});
-    }
-
-    componentDidMount(){
-        let dataSets = this.props.loadedData.filter(dataSet => {
-            return (dataSet['graphSize'] === this.props.graphSize);
-        });
-
-        let results = [];
-        dataSets.forEach(dataSet => {
-            results.push(dataSet.data.find(result => {
-                return result['graphID'] === this.props.graphID;
-            }));
-        });
-
-        let dataUrl = window.location + "graphs/indexed-" + this.props.graphSize + "-node-test-set/" + this.props.graphID + ".json";
-        Promise.resolve(this.fetchJSONData(dataUrl)).then(graph =>{
-            this.setState({
-                results: results,
-                graph: graph
-            });
-        });
-    }
-
-    fetchJSONData(url) {
-        console.log(url);
-        return fetch(url)
-            .then(response => response.json())
-            .then((jsonData) => {
-                this.setState({errorLoadingData: false});
-                return jsonData;
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({errorLoadingData: true});
-            });
     }
 
     render(){
@@ -148,14 +112,13 @@ export class DetailOverlay extends React.Component {
                         <DetailTabContents>
                             {(this.state.activeTab === 'results') ? (
                                 <ResultOverview graphID={this.props.graphID}
-                                                graphSize={this.props.graphSize}
-                                                results={this.state.results}/>
+                                                graphSize={this.props.graphSize}/>
                             ) : ''}
                             {(this.state.activeTab === 'histogram') ? (
                                 <ConnectivityHistogram/>
                             ) : ''}
                             {(this.state.activeTab === 'explorer') ? (
-                                <GraphExplorer graph={this.state.graph} results={this.state.results}/>
+                                <GraphExplorer graphID={this.props.graphID} graphSize={this.props.graphSize}/>
                             ) : ''}
                         </DetailTabContents>
                     </OverlayContent>

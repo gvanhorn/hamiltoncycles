@@ -18,9 +18,13 @@ const Window = styled.div`
     overflow: hidden;
 `;
 
+const ErrorMessage = styled.span`
+    color: red;
+`;
+
 const client = Stitch.initializeDefaultAppClient('hamilton-cycles-backend-dbwps');
 const mongodb = client.getServiceClient(RemoteMongoClient.factory, 'hamilton-cycles-atlas');
-const db = mongodb.db('hamiltoncycles');
+export const db = mongodb.db('hamiltoncycles');
 
 export class DataPlot extends Component {
 
@@ -138,17 +142,13 @@ export class DataPlot extends Component {
     componentDidMount() {
         client.auth
             .loginWithCredential(new AnonymousCredential())
-            .then(stitchUser => {
+            .then(() => this.loadData('cetal', 16))
+            .catch(error => {
+                console.log(error);
                 this.setState({
-                    stitchUser: stitchUser
-                });
-                this.loadData('cetal', 16);
-            })
-            .catch(error => this.setState({
-                error: error
-            }));
-
-
+                    error: error
+                })
+            });
     }
 
     overlayCloseHandler() {
@@ -160,6 +160,12 @@ export class DataPlot extends Component {
     }
 
     render() {
+        if (this.state.error) {
+            return (
+                <Window><ErrorMessage>Could not connect to the database...</ErrorMessage></Window>
+            );
+        }
+
         return (
             <Window id={'plot-wrapper'}>
                 <PlotComponentHeader>Relative time-cost of algorithms</PlotComponentHeader>
@@ -174,8 +180,7 @@ export class DataPlot extends Component {
                 </PlotMenu>
                 {this.state.overlayOpen ? (<DetailOverlay closeHandler={this.overlayCloseHandler}
                                                           graphSize={this.state.overlayGraphSize}
-                                                          graphID={this.state.overlayGraphID}
-                                                          loadedData={this.state.loadedData}/>) : ''}
+                                                          graphID={this.state.overlayGraphID}/>) : ''}
             </Window>
         )
     }

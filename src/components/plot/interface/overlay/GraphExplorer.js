@@ -1,6 +1,7 @@
 import React from "react";
 import styled from 'styled-components';
 import {drawForceDirectedGraph, explorerCanvasSetup} from "../../../../d3/ExplorerHelper";
+import {db} from "../../DataPlot";
 
 const ExplorerCanvas = styled.div`
     width: 100%;
@@ -11,12 +12,22 @@ export class GraphExplorer extends React.Component {
 
     constructor(props){
         super(props);
+        this.state = {
+            loading: true,
+        };
         this.setupForceDirectedGraph = this.setupForceDirectedGraph.bind(this);
     }
 
     componentDidMount(){
-        explorerCanvasSetup();
-        this.setupForceDirectedGraph();
+        db.collection("graphs")
+            .findOne({identifier: this.props.graphID, size: this.props.graphSize})
+            .then(graph => {
+                if(graph){
+                    this.setState({loading: false, graph: graph});
+                }else{
+                    console.log("Could not find graph of size " + this.props.graphSize + " and id " + this.props.graphID)
+                }
+            });
     }
 
     componentDidUpdate(){
@@ -24,18 +35,14 @@ export class GraphExplorer extends React.Component {
     }
 
     setupForceDirectedGraph(){
-        if(this.props.graph) {
-            let hamiltonCycles = {};
-            this.props.results.forEach(result =>{
-                hamiltonCycles[result['algorithm']] = result['path']
-            });
-            drawForceDirectedGraph(this.props.graph, hamiltonCycles);
+        if(!this.state.loading) {
+            explorerCanvasSetup();
+            console.log(this.state.graph);
+            drawForceDirectedGraph(this.state.graph, []);
         }
     }
 
     render(){
-        return (
-            <ExplorerCanvas id={'graph-explorer'}/>
-        )
+        return this.state.loading ? 'loading grpah' : (<ExplorerCanvas id={'graph-explorer'}/>);
     }
 }
