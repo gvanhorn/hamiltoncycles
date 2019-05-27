@@ -1,6 +1,7 @@
 ## Intro
 
 Let's combine react and d3 to visualize a ton of data about the performance of different algorithms on the hamilton cycle problem.
+All that data is coming from a mongodb Atlas cluster served by the default stitch access service. 
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
