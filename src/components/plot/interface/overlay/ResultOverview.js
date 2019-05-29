@@ -17,6 +17,7 @@ const ResultsTable = styled.table`
 
 const ResultsTableHeader = styled.th`
     border-bottom: 1px solid;
+    cursor: pointer;
 `;
 
 const ResultsTableDatum = styled.td`
@@ -36,7 +37,10 @@ export class ResultOverview extends React.Component {
         this.state = {
             loading: true,
             results: []
-        }
+        };
+
+        this.sortBy.bind(this);
+        this.compareBy.bind(this);
     }
 
     componentDidMount(){
@@ -48,6 +52,20 @@ export class ResultOverview extends React.Component {
             })
     }
 
+    sortBy(key) {
+        let arrayCopy = [...this.state.results];
+        arrayCopy.sort(this.compareBy(key));
+        this.setState({results: arrayCopy});
+    }
+
+    compareBy(key) {
+        return function (a, b) {
+            if (a[key] < b[key]) return -1;
+            if (a[key] > b[key]) return 1;
+            return 0;
+        };
+    }
+
     render() {
         return (
             <ResultPane>
@@ -57,9 +75,9 @@ export class ResultOverview extends React.Component {
                         <thead>
                         <tr>
                             <ResultsTableHeader>Algorithm</ResultsTableHeader>
-                            <ResultsTableHeader>Cost (Iterations)</ResultsTableHeader>
-                            <ResultsTableHeader>Cost (Iterations / graph size)</ResultsTableHeader>
-                            <ResultsTableHeader>Cost (Nanoseconds)</ResultsTableHeader>
+                            <ResultsTableHeader onClick={() => this.sortBy('iterations')}>Cost (Iterations)</ResultsTableHeader>
+                            <ResultsTableHeader onClick={() => this.sortBy('relativeCost')}>Cost (Iterations / graph size)</ResultsTableHeader>
+                            <ResultsTableHeader onClick={() => this.sortBy('nanoseconds')}>Cost (Nanoseconds)</ResultsTableHeader>
                         </tr>
                         </thead>
                         <tbody>
