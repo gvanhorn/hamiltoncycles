@@ -81,8 +81,7 @@ export class DetailOverlay extends React.Component {
         super(props);
 
         this.state = {
-            isOpen: true,
-            activeTab: "results"
+            activeTab: "explorer"
         };
 
         this.activateTab = this.activateTab.bind(this);
@@ -93,38 +92,35 @@ export class DetailOverlay extends React.Component {
     }
 
     render(){
-        if(this.state.isOpen) {
-            return (
-                <Overlay>
-                    <OverlayContent>
-                        <CloseOverlayButton onClick={this.props.closeHandler}><CrossIcon width={closeOverlayButtonSize}
-                                                                                         height={closeOverlayButtonSize}/></CloseOverlayButton>
-                        <DetailTabList>
-                            {tabs.map((tabName) => {
-                                if (this.state.activeTab === tabName) {
-                                    return (
-                                        <DetailTabActive key={tabName}>{tabDisplayNames[tabName]}</DetailTabActive>);
-                                }
-                                return (<DetailTab key={tabName} data-tabname={tabName}
-                                                   onClick={this.activateTab}>{tabDisplayNames[tabName]}</DetailTab>);
-                            })}
-                        </DetailTabList>
-                        <DetailTabContents>
-                            {(this.state.activeTab === 'results') ? (
-                                <ResultOverview graphID={this.props.graphID}
-                                                graphSize={this.props.graphSize}/>
-                            ) : ''}
-                            {(this.state.activeTab === 'histogram') ? (
-                                <ConnectivityHistogram/>
-                            ) : ''}
-                            {(this.state.activeTab === 'explorer') ? (
-                                <GraphExplorer graphID={this.props.graphID} graphSize={this.props.graphSize}/>
-                            ) : ''}
-                        </DetailTabContents>
-                    </OverlayContent>
-                </Overlay>
-            );
-        }
-        return null;
+        return (
+            <Overlay>
+                <OverlayContent>
+                    <CloseOverlayButton onClick={this.props.closeHandler}><CrossIcon width={closeOverlayButtonSize}
+                                                                                     height={closeOverlayButtonSize}/></CloseOverlayButton>
+                    <DetailTabList>
+                        {tabs.map((tabName) => {
+                            if (this.state.activeTab === tabName) {
+                                return (
+                                    <DetailTabActive key={tabName}>{tabDisplayNames[tabName]}</DetailTabActive>);
+                            }
+                            return (<DetailTab key={tabName} data-tabname={tabName}
+                                               onClick={this.activateTab}>{tabDisplayNames[tabName]}</DetailTab>);
+                        })}
+                    </DetailTabList>
+                    <DetailTabContents>
+                        {(this.state.activeTab === 'results') ? (
+                            <ResultOverview graphID={this.props.graphID}
+                                            graphSize={this.props.graphSize}/>
+                        ) : ''}
+                        {(this.state.activeTab === 'histogram') ? (
+                            <ConnectivityHistogram/>
+                        ) : ''}
+                        {(this.state.activeTab === 'explorer') ? (
+                            <GraphExplorer graphID={this.props.graphID} graphSize={this.props.graphSize}/>
+                        ) : ''}
+                    </DetailTabContents>
+                </OverlayContent>
+            </Overlay>
+        );
     }
 }

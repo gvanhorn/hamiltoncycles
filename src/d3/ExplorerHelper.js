@@ -18,7 +18,7 @@ export const explorerCanvasSetup = function graphCanvasSetup(){
         // .attr("transform", "translate(" + graphMargin.left + "," + graphMargin.top + ")");
 };
 
-export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, hamiltonCycles){
+export const drawForceDirectedGraph = function drawForceDirectedGraph(graph){
     //Evaluate the connectivity map as JSON
     let degreeMap = graph["connectivityMap"];
 
@@ -32,9 +32,10 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
     let edges = graph.edges;
     let links = [];
     for(let i=0; i<edges.length; i++){
-        let source = edges[i].endpoints[0].id;
-        let target = edges[i].endpoints[1].id;
-        links.push({source:source, target:target, id:i, type:"regular"});
+        let source = parseInt(edges[i].endpoints[0].id);
+        let target = parseInt(edges[i].endpoints[1].id);
+        let id = 'link' + source + "-" + target;
+        links.push({source:source, target:target, id:id});
     }
 
     //Define a color scale based on degree of a node
@@ -55,6 +56,7 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
     let linkage = explorerSVG.selectAll('.link')
         .data(links)
         .enter().append('line')
+        .attr('id', function(d){return d.id;})
         .attr('class', 'link')
         .attr('stroke', 'gray');
 
@@ -92,6 +94,32 @@ export const drawForceDirectedGraph = function drawForceDirectedGraph(graph, ham
             .attr('y2', function(d) { return d.target.y; });
         nodeElements.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
     });
+};
+
+export const colorHamiltonCycle = function colorHamiltonCycle(result){
+    for(let i = 0; i < result['graphSize']; i++){
+        //last node in path, loop back to first
+        let source, target;
+        if(i === result['graphSize']-1){
+            source = result['path'][i].id;
+            target = result['path'][0].id;
+        }else{
+            source = result['path'][i].id;
+            target = result['path'][i+1].id;
+        }
+        let selector = "#link" + source + '-' + target;
+        let invertedSelector = "#link" + target + '-' + source;
+        d3.selectAll(selector)
+            .attr('stroke', 'green')
+            .attr('stroke-width', '3');
+        d3.selectAll(invertedSelector)
+            .attr('stroke', 'green')
+            .attr('stroke-width', '3');
+    }
+};
+
+export const removeHamiltonCycle = function removeHamiltonCycle(){
+    d3.selectAll(".link").attr('stroke', 'grey').attr('stroke-width', '1');
 };
 
 function dblclick(d) {

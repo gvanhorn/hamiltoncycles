@@ -14,7 +14,7 @@ const xMap = function (result) {
 const yMap = function (result) {
     return getYScale()(result['relativeCost'] + 0.01);
 };
-const color = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
+export const colorScale = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
 
 const meanLine = d3.line()
     .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
@@ -76,7 +76,7 @@ export const drawDataPoints = function drawDataPoints(dataArray, classNames, cli
         .attr("cx", xMap)
         .attr("cy", yMap)
         .style("fill", function (result) {
-            return color(result["hamiltonian"]);
+            return colorScale(result["hamiltonian"]);
         })
         .style("cursor", "pointer")
         .on("click", function(result){
