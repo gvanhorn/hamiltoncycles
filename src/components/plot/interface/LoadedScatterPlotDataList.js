@@ -1,7 +1,8 @@
 import React from "react";
 import styled from 'styled-components';
-import {CrossIcon, DownloadIcon} from "../StyledPlotComponents";
+import {CrossIcon} from "../StyledPlotComponents";
 import {algorithmDisplayNames} from "../DataPlot";
+import {DownloadButton} from "./DownloadButton";
 
 const Component = styled.div`
     border-left: 1px solid;
@@ -10,21 +11,6 @@ const Component = styled.div`
     margin: 0;
 `;
 
-const DownloadButton = styled.button`
-    margin: .5em 0 0 .5em;
-    padding: .5em;
-    border: .5px solid;
-    cursor: pointer;
-    background: white;
-    
-    &:hover {
-        background-color: #c6e2ff;
-    }
-`;
-
-const DownloadButtonText = styled.span`
-    margin: auto .5em auto 0;
-`;
 
 const DataContainer = styled.div`
     display: flex;
@@ -75,13 +61,12 @@ export class LoadedScatterPlotDataList extends React.Component {
 
         this.checkboxHandler = this.checkboxHandler.bind(this);
         this.closeHandler = this.closeHandler.bind(this);
-        this.downloadHandler = this.downloadHandler.bind(this);
     }
 
     render() {
         return (
             <Component id={'loaded-data-list'}>
-                <DownloadButton onClick={this.downloadHandler}><DownloadButtonText>Download the current figure</DownloadButtonText><DownloadIcon width={'1.5em'} height={'1.5em'}/></DownloadButton>
+                <DownloadButton selector={'#plot-canvas svg'} text={'Download figure'}/>
                 <DataContainer>
                     {this.state.loadedData.map(dataSet => {
                             if (!dataSet.visible) {
@@ -124,12 +109,6 @@ export class LoadedScatterPlotDataList extends React.Component {
                 </DataContainer>
             </Component>
         );
-    }
-
-    downloadHandler(){
-        let svg = document.querySelector('#plot-canvas svg');
-        let saveSVG = require('save-svg-as-png');
-        saveSVG.saveSvgAsPng(svg, "diagram.png", {encoderOptions: 1, backgroundColor: '#FFF'});
     }
 
     closeHandler(event){

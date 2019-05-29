@@ -7,6 +7,7 @@ import {
     removeHamiltonCycle
 } from "../../../../d3/ExplorerHelper";
 import {algorithmDisplayNames, db} from "../../DataPlot";
+import {DownloadButton} from "../DownloadButton";
 
 const ExplorerCanvas = styled.div`
     position: relative;
@@ -127,6 +128,7 @@ export class GraphExplorer extends React.Component {
                             }
                         })}
                     </LegendList>
+                    <DownloadButton selector={'#graph-explorer > svg'} text={'Download figure'}/>
                 </ExplorerLegend>
             </ExplorerCanvas>);
     }

@@ -64,14 +64,10 @@ const DetailTabContents = styled.div`
     height: 100%;
 `;
 
-const ConnectivityHistogram = styled.div`
-`;
-
-const tabs = ["results", "histogram", "explorer"];
+const tabs = ["results", "explorer"];
 // const tabs = ["results"];
 const tabDisplayNames = {
     'results': "Results",
-    'histogram': "Connectivity histogram",
     'explorer': "Graph explorer"
 };
 
@@ -111,9 +107,6 @@ export class DetailOverlay extends React.Component {
                         {(this.state.activeTab === 'results') ? (
                             <ResultOverview graphID={this.props.graphID}
                                             graphSize={this.props.graphSize}/>
-                        ) : ''}
-                        {(this.state.activeTab === 'histogram') ? (
-                            <ConnectivityHistogram/>
                         ) : ''}
                         {(this.state.activeTab === 'explorer') ? (
                             <GraphExplorer graphID={this.props.graphID} graphSize={this.props.graphSize}/>
