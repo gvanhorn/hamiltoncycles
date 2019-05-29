@@ -35,9 +35,7 @@ export class DataPlot extends Component {
             lineTypes: lineTypes,
             loadedData: [],
             isLoading: false,
-            overlayOpen: true,
-            overlayGraphSize: 16,
-            overlayGraphID: 1500
+            overlayOpen: false,
         };
 
         this.loadData = this.loadData.bind(this);
@@ -144,7 +142,7 @@ export class DataPlot extends Component {
     componentDidMount() {
         client.auth
             .loginWithCredential(new AnonymousCredential())
-            // .then(() => this.loadData('cetal', 16))
+            .then(() => this.loadData('cetal', 16))
             .catch(error => {
                 console.log(error);
                 this.setState({
