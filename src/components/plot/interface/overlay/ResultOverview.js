@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import {algorithmDisplayNames, db} from "../../DataPlot";
+import {algorithmDisplayNames} from "../../DataPlot";
 
 
 const ResultPane = styled.div`
@@ -32,56 +32,33 @@ const ResultsTableRow = styled.tr`
 
 export class ResultOverview extends React.Component {
 
-    constructor(){
+    constructor() {
         super();
         this.state = {
             loading: true,
             results: []
         };
-
-        this.sortBy.bind(this);
-        this.compareBy.bind(this);
-    }
-
-    componentDidMount(){
-        db.collection("results")
-            .find({graphID: this.props.graphID, graphSize: this.props.graphSize})
-            .toArray()
-            .then(docs => {
-                this.setState({loading: false, results: docs})
-            })
-    }
-
-    sortBy(key) {
-        let arrayCopy = [...this.state.results];
-        arrayCopy.sort(this.compareBy(key));
-        this.setState({results: arrayCopy});
-    }
-
-    compareBy(key) {
-        return function (a, b) {
-            if (a[key] < b[key]) return -1;
-            if (a[key] > b[key]) return 1;
-            return 0;
-        };
     }
 
     render() {
         return (
-            <ResultPane>
+            <ResultPane style={this.props.active ? {display: 'block'} : {display: 'none'}}>
                 <h3>Graph with identifier: {this.props.graphID}, of the {this.props.graphSize}-node graph test set</h3>
-                {this.state.loading ? 'loading...' :
+                {this.props.loading ? 'loading...' :
                     <ResultsTable>
                         <thead>
                         <tr>
                             <ResultsTableHeader>Algorithm</ResultsTableHeader>
-                            <ResultsTableHeader onClick={() => this.sortBy('iterations')}>Cost (Iterations)</ResultsTableHeader>
-                            <ResultsTableHeader onClick={() => this.sortBy('relativeCost')}>Cost (Iterations / graph size)</ResultsTableHeader>
-                            <ResultsTableHeader onClick={() => this.sortBy('nanoseconds')}>Cost (Nanoseconds)</ResultsTableHeader>
+                            <ResultsTableHeader onClick={() => this.props.sortFunction('iterations')}>Cost
+                                (Iterations)</ResultsTableHeader>
+                            <ResultsTableHeader onClick={() => this.props.sortFunction('relativeCost')}>Cost (Iterations
+                                / graph size)</ResultsTableHeader>
+                            <ResultsTableHeader onClick={() => this.props.sortFunction('nanoseconds')}>Cost
+                                (Nanoseconds)</ResultsTableHeader>
                         </tr>
                         </thead>
                         <tbody>
-                        {this.state.results.map(result => {
+                        {this.props.results.map(result => {
                             return (
                                 <ResultsTableRow key={result['algorithm']}>
                                     <th>{algorithmDisplayNames[result['algorithm']]}</th>

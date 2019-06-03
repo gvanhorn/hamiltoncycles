@@ -6,7 +6,7 @@ import {
     explorerCanvasSetup,
     removeHamiltonCycle
 } from "../../../../d3/ExplorerHelper";
-import {algorithmDisplayNames, db} from "../../DataPlot";
+import {algorithmDisplayNames} from "../../DataPlot";
 import {DownloadButton} from "../DownloadButton";
 
 const ExplorerCanvas = styled.div`
@@ -49,49 +49,29 @@ export class GraphExplorer extends React.Component {
         this.checkboxHandler = this.checkboxHandler.bind(this);
     }
 
-    componentDidMount() {
-        Promise.all([
-            db.collection("graphs").findOne({identifier: this.props.graphID, size: this.props.graphSize}),
-            db.collection("results").find({graphSize: this.props.graphSize, graphID: this.props.graphID}).toArray()
-        ]).then(values => {
-            let partialState = {loading: false};
-            if (!values[0]) {
-                console.log("Could not find graph of size " + this.props.graphSize + " and id " + this.props.graphID)
-            } else {
-                partialState['graph'] = values[0];
-            }
-            if (values[1].length === 0) {
-                console.log("Could not find results for graph size " + this.props.graphSize + " and id " + this.props.graphID)
-            } else {
-                partialState['results'] = values[1];
-            }
-            this.setState(partialState);
-        });
-    }
-
     componentDidUpdate() {
         this.setupForceDirectedGraph();
     }
 
     setupForceDirectedGraph() {
-        if (!this.state.loading) {
+        if (!this.props.loading) {
             explorerCanvasSetup();
-            drawForceDirectedGraph(this.state.graph);
+            drawForceDirectedGraph(this.props.graph);
             removeHamiltonCycle();
-            if(this.state.shownCycle != null){
-                let result = this.state.results.find(result => result['algorithm'] === this.state.shownCycle);
+            if (this.state.shownCycle != null) {
+                let result = this.props.results.find(result => result['algorithm'] === this.state.shownCycle);
                 colorHamiltonCycle(result);
             }
         }
     }
 
-    checkboxHandler(event){
-        if(this.state.shownCycle === event.target.name){
+    checkboxHandler(event) {
+        if (this.state.shownCycle === event.target.name) {
             removeHamiltonCycle();
             this.setState({
                 shownCycle: null
             })
-        }else {
+        } else {
             this.setState({
                 shownCycle: event.target.name
             })
@@ -99,7 +79,7 @@ export class GraphExplorer extends React.Component {
     }
 
     render() {
-        return this.state.loading ?
+        return this.props.loading ?
             (<CenteredLoader>
                 <div className="lds-ellipsis">
                     <div/>
@@ -108,11 +88,11 @@ export class GraphExplorer extends React.Component {
                     <div/>
                 </div>
             </CenteredLoader>) :
-            (<ExplorerCanvas id={'graph-explorer'}>
+            (<ExplorerCanvas id={'graph-explorer'} style={this.props.active ? {display: 'block'} : {display: 'none'}}>
                 <ExplorerLegend>
                     <LegendTitle>Algorithms:</LegendTitle>
                     <LegendList>
-                        {this.state.results.map(result => {
+                        {this.props.results.map(result => {
                             if (result['hamiltonian']) {
                                 return (<LegendListItem key={result['algorithm']}>
                                     <input type={'checkbox'}

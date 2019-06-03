@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {CrossIcon} from "../../StyledPlotComponents";
 import {ResultOverview} from "./ResultOverview";
 import {GraphExplorer} from "./GraphExplorer";
+import {db} from "../../DataPlot";
 
 const Overlay = styled.div`
     position: absolute;
@@ -73,21 +74,58 @@ const tabDisplayNames = {
 
 export class DetailOverlay extends React.Component {
 
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.state = {
-            activeTab: "explorer"
+            activeTab: "explorer",
+            loading: true
         };
 
         this.activateTab = this.activateTab.bind(this);
+        this.sortResultsBy = this.sortResultsBy.bind(this);
+        this.compareBy.bind(this);
     }
 
-    activateTab(event){
+    activateTab(event) {
         this.setState({activeTab: event.target.dataset.tabname});
     }
 
-    render(){
+    sortResultsBy(key) {
+        let arrayCopy = [...this.state.results];
+        arrayCopy.sort(this.compareBy(key));
+        this.setState({results: arrayCopy});
+    }
+
+    compareBy(key) {
+        return function (a, b) {
+            if (a[key] < b[key]) return -1;
+            if (a[key] > b[key]) return 1;
+            return 0;
+        };
+    }
+
+    componentDidMount() {
+        Promise.all([
+            db.collection("graphs").findOne({identifier: this.props.graphID, size: this.props.graphSize}),
+            db.collection("results").find({graphSize: this.props.graphSize, graphID: this.props.graphID}).toArray()
+        ]).then(values => {
+            let partialState = {loading: false};
+            if (!values[0]) {
+                console.log("Could not find graph of size " + this.props.graphSize + " and id " + this.props.graphID)
+            } else {
+                partialState['graph'] = values[0];
+            }
+            if (values[1].length === 0) {
+                console.log("Could not find results for graph size " + this.props.graphSize + " and id " + this.props.graphID)
+            } else {
+                partialState['results'] = values[1];
+            }
+            this.setState(partialState);
+        });
+    }
+
+    render() {
         return (
             <Overlay>
                 <OverlayContent>
@@ -104,13 +142,17 @@ export class DetailOverlay extends React.Component {
                         })}
                     </DetailTabList>
                     <DetailTabContents>
-                        {(this.state.activeTab === 'results') ? (
-                            <ResultOverview graphID={this.props.graphID}
-                                            graphSize={this.props.graphSize}/>
-                        ) : ''}
-                        {(this.state.activeTab === 'explorer') ? (
-                            <GraphExplorer graphID={this.props.graphID} graphSize={this.props.graphSize}/>
-                        ) : ''}
+                        <ResultOverview graphID={this.props.graphID}
+                                        graphSize={this.props.graphSize}
+                                        results={this.state.results}
+                                        active={this.state.activeTab === 'results'}
+                                        loading={this.state.loading} sortFunction={this.sortResultsBy}/>
+                        <GraphExplorer graphID={this.props.graphID}
+                                       graphSize={this.props.graphSize}
+                                       results={this.state.results}
+                                       graph={this.state.graph}
+                                       active={this.state.activeTab === 'explorer'}
+                                       loading={this.state.loading}/>
                     </DetailTabContents>
                 </OverlayContent>
             </Overlay>
