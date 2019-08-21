@@ -1,7 +1,6 @@
 import React from "react";
 import styled from 'styled-components';
 import {algorithmDisplayNames} from "../DataPlot";
-import {DownloadButton} from "./DownloadButton";
 
 const Component = styled.div`
     border-left: 1px solid;
@@ -56,7 +55,6 @@ export class LoadedScatterPlotDataList extends React.Component {
     render() {
         return (
             <Component id={'loaded-data-list'}>
-                <DownloadButton selector={'#plot-area svg'} text={'Download figure'}/>
                 <DataContainer>
                     {this.state.loadedData.map(dataSet => {
                             if (!dataSet.visible) {

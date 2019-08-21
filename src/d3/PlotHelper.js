@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-var svg, canvas, context, lineContainer;
+var svg, canvas, context, lineContainer, quadTree, overlayOpenFunction;
 
 export const maximumAverageDegree = 31;
 const maximumRelativeCost = 10000;
@@ -17,19 +17,30 @@ const yMap = function (result) {
 export const colorScale = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
 
 const meanLine = d3.line()
-    .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
-    .y(function(d) { return getYScale()(d['mean']); }) // set the y values for the line generator
+    .x(function (d) {
+        return getXScale()(d['averageDegree']);
+    }) // set the x values for the line generator
+    .y(function (d) {
+        return getYScale()(d['mean']);
+    }) // set the y values for the line generator
     .curve(d3.curveMonotoneX); // apply smoothing to the line
 
 const medianLine = d3.line()
-    .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
-    .y(function(d) { return getYScale()(d['median']); }) // set the y values for the line generator
+    .x(function (d) {
+        return getXScale()(d['averageDegree']);
+    }) // set the x values for the line generator
+    .y(function (d) {
+        return getYScale()(d['median']);
+    }) // set the y values for the line generator
     .curve(d3.curveMonotoneX); // apply smoothing to the line
 
-export const canvasSetup = function canvasSetup() {
+const scatterPointRadius = 3;
+
+export const canvasSetup = function canvasSetup(overlayOpener) {
     let start = performance.now();
 
-    if(svg) {
+    overlayOpenFunction = overlayOpener;
+    if (svg) {
         while (svg.node().lastChild) {
             svg.node().removeChild(svg.node().lastChild);
         }
@@ -39,12 +50,14 @@ export const canvasSetup = function canvasSetup() {
         .attr("id", "plot-svg")
         .attr("width", getWidth() + margin.left + margin.right)
         .attr("height", getHeight() + margin.top + margin.bottom)
+        .style("position", "relative")
         .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     canvas = d3.select("#plot-canvas")
         .attr("width", getWidth() - 1)
         .attr("height", getHeight() - 1)
-        .style("transform", "translate(" + (margin.left + 1) + "px," + (margin.top + 1) + "px)");
+        .style("transform", "translate(" + (margin.left + 1) + "px," + (margin.top + 1) + "px)")
+        .on("click", canvasClickHandler);
 
     context = canvas.node().getContext('2d');
 
@@ -86,12 +99,20 @@ export const canvasSetup = function canvasSetup() {
     lineContainer = svg.append("g");
 
     let end = performance.now();
-    console.log("Canvas setup took: " + (end-start) + " milliseconds");
+    console.log("Canvas setup took: " + (end - start) + " milliseconds");
 };
 
-export const drawDataPoints = function drawDataPoints(dataArray, classNames, clickHandler) {
+function canvasClickHandler() {
+    let mouse = d3.mouse(this);
+    let closest = quadTree.find(mouse[0], mouse[1], scatterPointRadius);
+    if (closest) {
+        overlayOpenFunction(closest['graphSize'], closest['graphID']);
+    }
+}
+
+export const drawDataPoints = function drawDataPoints(dataArray) {
     let start = performance.now();
-    dataArray.forEach(function(result){
+    dataArray.forEach(function (result) {
         let cx = xMap(result);
         let cy = yMap(result);
 
@@ -99,16 +120,18 @@ export const drawDataPoints = function drawDataPoints(dataArray, classNames, cli
         context.fillStyle = color;
         context.strokeStyle = color;
         context.beginPath();
-        context.arc(cx, cy, 3.5, 0, 2 * Math.PI);
+        context.arc(cx, cy, scatterPointRadius, 0, 2 * Math.PI);
         context.closePath();
         context.fill();
         context.stroke();
+
     });
+    quadTree.addAll(dataArray);
     let end = performance.now();
-    console.log("Drawing data took " + (end-start) + " milliseconds.");
+    console.log("Drawing data took " + (end - start) + " milliseconds.");
 };
 
-export const drawMeanLine = function drawMeanLine(dataArray, classNames){
+export const drawMeanLine = function drawMeanLine(dataArray, classNames) {
     let start = performance.now();
     lineContainer.append("path")
         .datum(dataArray)
@@ -119,7 +142,7 @@ export const drawMeanLine = function drawMeanLine(dataArray, classNames){
     console.log("Drawing mean line took: " + (end - start) + " milliseconds");
 };
 
-export const drawMedianLine = function drawMeanLine(dataArray, classNames){
+export const drawMedianLine = function drawMeanLine(dataArray, classNames) {
     let start = performance.now();
     lineContainer.append("path")
         .datum(dataArray)
@@ -130,11 +153,18 @@ export const drawMedianLine = function drawMeanLine(dataArray, classNames){
     console.log("Drawing median line took: " + (end - start) + " milliseconds");
 };
 
-export function clearCanvas(){
-    context.clearRect(0,0,getWidth(), getHeight());
+export function clearCanvas() {
+    context.clearRect(0, 0, getWidth(), getHeight());
+    quadTree = d3.quadtree()
+        .x(function (d) {
+            return getXScale()(d['averageDegree']);
+        })
+        .y(function (d) {
+            return getYScale()(d['relativeCost']);
+        });
 }
 
-export function clearSvg(){
+export function clearSvg() {
     while (lineContainer.node().lastChild) {
         lineContainer.node().removeChild(lineContainer.node().lastChild);
     }
