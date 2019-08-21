@@ -1,8 +1,6 @@
 import React from "react";
 import styled from 'styled-components';
-import {CrossIcon} from "../StyledPlotComponents";
 import {algorithmDisplayNames} from "../DataPlot";
-import {DownloadButton} from "./DownloadButton";
 
 const Component = styled.div`
     border-left: 1px solid;
@@ -35,15 +33,6 @@ const DataSetLabel = styled.p`
     margin: .5em 0 0 0;
 `;
 
-const crossIconSize = '1em';
-const RemoveFromPlotButton = styled.button`
-    grid-column-start: 2;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    margin: .5em 0 0 0;
-`;
-
 const DerivedDataSetInput = styled.input`
     grid-column-start: 2;
     margin: 1em 0 0 .5em;
@@ -66,7 +55,6 @@ export class LoadedScatterPlotDataList extends React.Component {
     render() {
         return (
             <Component id={'loaded-data-list'}>
-                <DownloadButton selector={'#plot-canvas svg'} text={'Download figure'}/>
                 <DataContainer>
                     {this.state.loadedData.map(dataSet => {
                             if (!dataSet.visible) {
@@ -83,10 +71,6 @@ export class LoadedScatterPlotDataList extends React.Component {
                                          data-graphsize={dataSet.graphSize}>
 
                                     <DataSetLabel>{title}</DataSetLabel>
-                                    <RemoveFromPlotButton onClick={this.closeHandler}>
-                                        <CrossIcon width={crossIconSize} height={crossIconSize}/>
-                                    </RemoveFromPlotButton>
-
                                     <DataSetLabel>Show scatter data</DataSetLabel>
                                     <DerivedDataSetInput type={'checkbox'}
                                                          onChange={this.checkboxHandler}

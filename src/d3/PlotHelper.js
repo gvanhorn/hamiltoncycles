@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-var svg;
+var svg, canvas, context, lineContainer, quadTree, overlayOpenFunction;
 
 export const maximumAverageDegree = 31;
 const maximumRelativeCost = 10000;
@@ -17,20 +17,49 @@ const yMap = function (result) {
 export const colorScale = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
 
 const meanLine = d3.line()
-    .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
-    .y(function(d) { return getYScale()(d['mean']); }) // set the y values for the line generator
+    .x(function (d) {
+        return getXScale()(d['averageDegree']);
+    }) // set the x values for the line generator
+    .y(function (d) {
+        return getYScale()(d['mean']);
+    }) // set the y values for the line generator
     .curve(d3.curveMonotoneX); // apply smoothing to the line
 
 const medianLine = d3.line()
-    .x(function(d) { return getXScale()(d['averageDegree']); }) // set the x values for the line generator
-    .y(function(d) { return getYScale()(d['median']); }) // set the y values for the line generator
+    .x(function (d) {
+        return getXScale()(d['averageDegree']);
+    }) // set the x values for the line generator
+    .y(function (d) {
+        return getYScale()(d['median']);
+    }) // set the y values for the line generator
     .curve(d3.curveMonotoneX); // apply smoothing to the line
 
-export const canvasSetup = function canvasSetup() {
-    svg = getCanvasSelection().append("svg")
+const scatterPointRadius = 3;
+
+export const canvasSetup = function canvasSetup(overlayOpener) {
+    let start = performance.now();
+
+    overlayOpenFunction = overlayOpener;
+    if (svg) {
+        while (svg.node().lastChild) {
+            svg.node().removeChild(svg.node().lastChild);
+        }
+    }
+
+    svg = getPlotAreaSelection().append("svg")
+        .attr("id", "plot-svg")
         .attr("width", getWidth() + margin.left + margin.right)
         .attr("height", getHeight() + margin.top + margin.bottom)
+        .style("position", "relative")
         .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    canvas = d3.select("#plot-canvas")
+        .attr("width", getWidth() - 1)
+        .attr("height", getHeight() - 1)
+        .style("transform", "translate(" + (margin.left + 1) + "px," + (margin.top + 1) + "px)")
+        .on("click", canvasClickHandler);
+
+    context = canvas.node().getContext('2d');
 
     let xAxis = d3.axisBottom(getXScale()).ticks(maximumAverageDegree);
     let yAxis = d3.axisLeft(getYScale())
@@ -65,63 +94,80 @@ export const canvasSetup = function canvasSetup() {
         .attr("y", "-4em")
         .style("text-anchor", "end")
         .text("Relative cost (iterations / nodes)");
+
+    //Create element to contain lines
+    lineContainer = svg.append("g");
+
+    let end = performance.now();
+    console.log("Canvas setup took: " + (end - start) + " milliseconds");
 };
 
-export const drawDataPoints = function drawDataPoints(dataArray, classNames, clickHandler) {
-    svg.selectAll(makeSelector(classNames))
-        .data(dataArray)
-        .enter().append("circle")
-        .attr("class", classNames.join(" "))
-        .attr("r", 3.5)
-        .attr("cx", xMap)
-        .attr("cy", yMap)
-        .style("fill", function (result) {
-            return colorScale(result["hamiltonian"]);
-        })
-        .style("cursor", "pointer")
-        .on("click", function(result){
-            let className = classNames.find(className => /graph-size-[0-9]+/.test(className));
-            let graphSize = parseInt(className.match(/[0-9]+/));
-            clickHandler(graphSize, result['graphID']);
-        });
+function canvasClickHandler() {
+    let mouse = d3.mouse(this);
+    let closest = quadTree.find(mouse[0], mouse[1], scatterPointRadius);
+    if (closest) {
+        overlayOpenFunction(closest['graphSize'], closest['graphID']);
+    }
+}
+
+export const drawDataPoints = function drawDataPoints(dataArray) {
+    let start = performance.now();
+    dataArray.forEach(function (result) {
+        let cx = xMap(result);
+        let cy = yMap(result);
+
+        let color = colorScale(result["hamiltonian"]);
+        context.fillStyle = color;
+        context.strokeStyle = color;
+        context.beginPath();
+        context.arc(cx, cy, scatterPointRadius, 0, 2 * Math.PI);
+        context.closePath();
+        context.fill();
+        context.stroke();
+
+    });
+    quadTree.addAll(dataArray);
+    let end = performance.now();
+    console.log("Drawing data took " + (end - start) + " milliseconds.");
 };
 
-export const drawMeanLine = function drawMeanLine(dataArray, classNames){
-    svg.append("path")
+export const drawMeanLine = function drawMeanLine(dataArray, classNames) {
+    let start = performance.now();
+    lineContainer.append("path")
         .datum(dataArray)
         .attr("d", meanLine)
         .attr("class", classNames.join(" "))
         .style("fill", 'none');
+    let end = performance.now();
+    console.log("Drawing mean line took: " + (end - start) + " milliseconds");
 };
 
-export const removeLine = function removeLine(classNames) {
-    svg.selectAll(makeSelector(classNames))
-        .exit();
-};
-
-export const drawMedianLine = function drawMeanLine(dataArray, classNames){
-    svg.append("path")
+export const drawMedianLine = function drawMeanLine(dataArray, classNames) {
+    let start = performance.now();
+    lineContainer.append("path")
         .datum(dataArray)
         .attr("d", medianLine)
         .attr("class", classNames.join(" "))
         .style("fill", 'none');
+    let end = performance.now();
+    console.log("Drawing median line took: " + (end - start) + " milliseconds");
 };
 
-export function isDrawn(classNames){
-    return getCanvasElement().querySelectorAll(makeSelector(classNames)).length > 0;
+export function clearCanvas() {
+    context.clearRect(0, 0, getWidth(), getHeight());
+    quadTree = d3.quadtree()
+        .x(function (d) {
+            return getXScale()(d['averageDegree']);
+        })
+        .y(function (d) {
+            return getYScale()(d['relativeCost']);
+        });
 }
 
-export function hideData(classNames){
-    getCanvasSelection().selectAll(makeSelector(classNames)).style("display", "none");
-}
-
-export function showData(classNames) {
-    getCanvasSelection().selectAll(makeSelector(classNames)).style("display", "block");
-}
-
-function makeSelector(classNames){
-    let selector = classNames.join(".");
-    return "." + selector;
+export function clearSvg() {
+    while (lineContainer.node().lastChild) {
+        lineContainer.node().removeChild(lineContainer.node().lastChild);
+    }
 }
 
 function getXScale() {
@@ -132,18 +178,18 @@ function getYScale() {
     return d3.scaleLog().range([getHeight() - yPadding, yPadding]).domain([0.01, maximumRelativeCost]).nice();
 }
 
-function getCanvasSelection() {
-    return d3.select("#plot-canvas");
+function getPlotAreaSelection() {
+    return d3.select("#plot-area");
 }
 
-function getCanvasElement() {
-    return document.getElementById("plot-canvas");
+function getPlotAreaElement() {
+    return document.getElementById("plot-area");
 }
 
 function getWidth() {
-    return getCanvasElement().getBoundingClientRect().width - margin.left - margin.right;
+    return getPlotAreaElement().getBoundingClientRect().width - margin.left - margin.right;
 }
 
 function getHeight() {
-    return getCanvasElement().getBoundingClientRect().height - margin.top - margin.bottom;
+    return getPlotAreaElement().getBoundingClientRect().height - margin.top - margin.bottom;
 }
