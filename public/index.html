@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+<head>
+    <meta charset="utf-8"/>
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#000000"/>
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json"/>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -24,9 +24,75 @@
     -->
     <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
     <title>Hamilton Cycles</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div class="text-content">
+    <h1>Complexity of the Hamilton Cycle Problem</h1>
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <p>
+            The figure on this page illustrates the complexity of the hamilton cycle problem,
+            the problem of determining whether a path exists that visits every vertex in a graph exactly once and ends at the starting vertex.
+            The inspiration for this page came from a paper by Cheeseman, Kanefsky and Taylor "Where the <em>Really</em> hard problems are" (1991), and a desire
+            to enlarge and clarify their figures on this topic.
+        </p>
+    </section>
+    <section id="algorithms">
+        <h2>Algorithms</h2>
+        <h3>Depth-First</h3>
+        <p>A simple depth-first search, with a random start and random ordering of neighbours</p>
+        <h3>Cheeseman et al.'s backtracking algorithm</h3>
+        <p>The two heuristics employed by the Cetal algorithm are:
+        <ol>
+            <li>Start at the node with the highest connectivity</li>
+            <li>Order the neighbouring nodes of the last visited node by their connections to unvisited nodes (more is better)</li>
+        </ol>
+        </p>
+        <h3>Horn's backtracking algorithm</h3>
+        <p>The two heuristics employed by this backtrack algorithm are:
+        <ol>
+            <li>Start at the node with the lowest connectivity</li>
+            <li>Order the neighbouring nodes of the last visited node by their connections to unvisited nodes (less is better)</li>
+        </ol>
+        </p>
+        <h3>Vandergriend & Culberson's pruning algorithm</h3>
+        <p>Vacul precedes search with a check for connectedness and cut-vertices (vertices that when removed cause the graph to be disconnected) to determine
+            quickly if it is possible for the graph to be hamiltonian.
+        </p>
+        <p>During search it removes edges in the graph that cannot possibly be in the hamilton cycle, reducing the search space and iterations needed to reach a
+            conclusion.
+        </p>
+        <h3>Martello</h3>
+        <p>Description will follow later.</p>
+        <h3>Rubin</h3>
+        <p>Description will follow later.</p>
+    </section>
+</div>
+<div id="root"></div>
+<div class="text-content">
+    <section id="legend">
+        <svg height="1em" width="1em">
+            <circle cx=".5em" cy=".5em" fill="#33cc33" r="3.5" stroke="none"/>
+        </svg>
+        Represents a graph that has been determined to be hamiltonian. <br/>
+        <svg height="1em" width="1em">
+            <circle cx=".5em" cy=".5em" fill="#ff0000" r="3.5" stroke="none"/>
+        </svg>
+        Represents a graph that has been determined to be non-hamiltonian. <br/>
+        <svg height="1em" width="1em">
+            <circle cx=".5em" cy=".5em" fill="#0000ff" r="3.5" stroke="none"/>
+        </svg>
+        Represents a graph that took too long to analyze.<br/>
+        <p>
+            Hovering over a data point shows a histogram of the connectivity in that graph, with the connectivity on the x-axis and the amount of vertices that
+            have that connectivity on the y-axis.
+        </p>
+        <p>
+            Clicking on a data point highlights all data points with the same graph, allowing performance comparison between algorithms.
+        </p>
+    </section>
+</div>
+<footer id="footer"></footer>
+</body>
 </html>

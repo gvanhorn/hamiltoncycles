@@ -13,6 +13,7 @@ import {
 } from "mongodb-stitch-browser-sdk";
 
 const Window = styled.div`
+    position: relative;
     width: 100%;
     height: 100vh;
     overflow: hidden;

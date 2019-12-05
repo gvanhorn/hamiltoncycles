@@ -3,6 +3,15 @@ body {
   font-size: 14px;
 }
 
+.text-content{
+  width: 960px;
+  margin: 0 auto;
+}
+
+.header h1, h2, h3 {
+}
+
+
 #root {
   margin-bottom: 0;
 }
