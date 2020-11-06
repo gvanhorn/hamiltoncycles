@@ -37,8 +37,6 @@ const medianLine = d3.line()
 const scatterPointRadius = 3;
 
 export const canvasSetup = function canvasSetup(overlayOpener) {
-    let start = performance.now();
-
     overlayOpenFunction = overlayOpener;
     if (svg) {
         while (svg.node().lastChild) {
@@ -97,9 +95,6 @@ export const canvasSetup = function canvasSetup(overlayOpener) {
 
     //Create element to contain lines
     lineContainer = svg.append("g");
-
-    let end = performance.now();
-    console.log("Canvas setup took: " + (end - start) + " milliseconds");
 };
 
 function canvasClickHandler() {
@@ -111,7 +106,6 @@ function canvasClickHandler() {
 }
 
 export const drawDataPoints = function drawDataPoints(dataArray) {
-    let start = performance.now();
     dataArray.forEach(function (result) {
         let cx = xMap(result);
         let cy = yMap(result);
@@ -127,30 +121,22 @@ export const drawDataPoints = function drawDataPoints(dataArray) {
 
     });
     quadTree.addAll(dataArray);
-    let end = performance.now();
-    console.log("Drawing data took " + (end - start) + " milliseconds.");
 };
 
 export const drawMeanLine = function drawMeanLine(dataArray, classNames) {
-    let start = performance.now();
     lineContainer.append("path")
         .datum(dataArray)
         .attr("d", meanLine)
         .attr("class", classNames.join(" "))
         .style("fill", 'none');
-    let end = performance.now();
-    console.log("Drawing mean line took: " + (end - start) + " milliseconds");
 };
 
 export const drawMedianLine = function drawMeanLine(dataArray, classNames) {
-    let start = performance.now();
     lineContainer.append("path")
         .datum(dataArray)
         .attr("d", medianLine)
         .attr("class", classNames.join(" "))
         .style("fill", 'none');
-    let end = performance.now();
-    console.log("Drawing median line took: " + (end - start) + " milliseconds");
 };
 
 export function clearCanvas() {

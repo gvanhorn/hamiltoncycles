@@ -50,7 +50,7 @@ export class DataPlot extends Component {
 
     loadData(algorithmName, graphSize) {
         if (this.isLoaded(algorithmName, graphSize)) {
-            console.log('Data already loaded for ', algorithmName, graphSize);
+
             if (!this.getData(algorithmName, graphSize).visible) {
                 this.toggleVisibility(algorithmName, graphSize);
             }
@@ -69,7 +69,6 @@ export class DataPlot extends Component {
         plotData.meanVisible = true;
         plotData.medianVisible = true;
 
-        let start = performance.now();
         Promise.all(
             [db.collection("results")
                 .find({algorithm: algorithmName, graphSize: graphSize})
@@ -83,8 +82,6 @@ export class DataPlot extends Component {
                     })
                 })]
         ).then((values) => {
-            let end = performance.now();
-            console.log("Loading data took: " + (end - start) + " milliseconds");
             plotData.data = values[0];
             plotData.derived = values[1];
             let loadedData = this.state.loadedData;

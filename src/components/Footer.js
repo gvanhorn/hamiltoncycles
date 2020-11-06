@@ -20,7 +20,7 @@ export class Footer extends React.Component{
         return (
             <StyledFooter>
                 <FooterText>Site maintained by <a href={'mailto:contact@gijsvanhorn.nl'}>Gijs van Horn</a></FooterText>
-                <FooterText>Icons made by <a href={'https://www.flaticon.com/authors/dave-gandy'} target={'_blank'} rel={'noopener'}>Dave Gandy</a> from www.flaticon.com</FooterText>
+                <FooterText>Icons made by <a href={'https://www.flaticon.com/authors/dave-gandy'} target={'_blank'} rel={'noopener noreferrer'}>Dave Gandy</a> from www.flaticon.com</FooterText>
             </StyledFooter>
         )
     }

@@ -112,14 +112,10 @@ export class DetailOverlay extends React.Component {
             db.collection("results").find({graphSize: this.props.graphSize, graphID: this.props.graphID}).toArray()
         ]).then(values => {
             let partialState = {loading: false};
-            if (!values[0]) {
-                console.log("Could not find graph of size " + this.props.graphSize + " and id " + this.props.graphID)
-            } else {
+            if (values[0]) {
                 partialState['graph'] = values[0];
             }
-            if (values[1].length === 0) {
-                console.log("Could not find results for graph size " + this.props.graphSize + " and id " + this.props.graphID)
-            } else {
+            if (values[1].length > 0) {
                 partialState['results'] = values[1];
             }
             this.setState(partialState);
