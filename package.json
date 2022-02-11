@@ -6,7 +6,7 @@
   "dependencies": {
     "d3": "5.16.0",
     "mongodb-stitch-browser-sdk": "^4.8.0",
-    "node-sass": "^5.0.0",
+    "node-sass": "^7.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-loading": "^2.0.3",
