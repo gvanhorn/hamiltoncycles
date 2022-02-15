@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {CrossIcon} from "../../StyledPlotComponents";
 import {ResultOverview} from "./ResultOverview";
 import {GraphExplorer} from "./GraphExplorer";
-import {db} from "../../DataPlot";
 
 const Overlay = styled.div`
     position: absolute;
@@ -67,7 +66,6 @@ const DetailTabContents = styled.div`
 `;
 
 const tabs = ["results", "explorer"];
-// const tabs = ["results"];
 const tabDisplayNames = {
     'results': "Results",
     'explorer': "Graph explorer"
@@ -108,8 +106,8 @@ export class DetailOverlay extends React.Component {
 
     componentDidMount() {
         Promise.all([
-            db.collection("graphs").findOne({identifier: this.props.graphID, size: this.props.graphSize}),
-            db.collection("results").find({graphSize: this.props.graphSize, graphID: this.props.graphID}).toArray()
+            this.props.db.collection("graphs").findOne({identifier: this.props.graphID, size: this.props.graphSize}),
+            this.props.db.collection("results").find({graphSize: this.props.graphSize, graphID: this.props.graphID})
         ]).then(values => {
             let partialState = {loading: false};
             if (values[0]) {

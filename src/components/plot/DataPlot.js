@@ -6,11 +6,7 @@ import {PlotComponentHeader} from "./StyledPlotComponents";
 import {LoadScatterPlotDataComponent} from "./interface/LoadScatterPlotDataComponent";
 import {LoadedScatterPlotDataList} from "./interface/LoadedScatterPlotDataList";
 import {DetailOverlay} from "./interface/overlay/DetailOverlay";
-import {
-    Stitch,
-    AnonymousCredential,
-    RemoteMongoClient
-} from "mongodb-stitch-browser-sdk";
+import * as Realm from "realm-web";
 
 const Window = styled.div`
     position: relative;
@@ -23,9 +19,7 @@ const ErrorMessage = styled.span`
     color: red;
 `;
 
-const client = Stitch.initializeDefaultAppClient('hamilton-cycles-backend-dbwps');
-const mongodb = client.getServiceClient(RemoteMongoClient.factory, 'hamilton-cycles-atlas');
-export const db = mongodb.db('hamiltoncycles');
+const realm = new Realm.App({id: 'hamilton-cycles-backend-dbwps'});
 
 export class DataPlot extends Component {
 
@@ -69,21 +63,12 @@ export class DataPlot extends Component {
         plotData.meanVisible = true;
         plotData.medianVisible = true;
 
-        Promise.all(
-            [db.collection("results")
-                .find({algorithm: algorithmName, graphSize: graphSize})
-                .toArray(),
-            db.collection("derivedresults")
-                .find({algorithm: algorithmName, graphSize: graphSize})
-                .toArray()
-                .then((docs) => {
-                    return docs.sort(function (a, b) {
-                        return a['averageDegree'] - b['averageDegree']
-                    })
-                })]
-        ).then((values) => {
+        Promise.all([
+            this.state.db.collection("results").find({algorithm: algorithmName, graphSize: graphSize}),
+            this.state.db.collection("derivedresults").find({algorithm: algorithmName, graphSize: graphSize})
+        ]).then((values) => {
             plotData.data = values[0];
-            plotData.derived = values[1];
+            plotData.derived = values[1].sort((a, b) => a['averageDegree'] - b['averageDegree']);
             let loadedData = this.state.loadedData;
             loadedData.push(plotData);
             this.setState({isLoading: false, loadedData: loadedData});
@@ -96,8 +81,8 @@ export class DataPlot extends Component {
         data.scatterVisible = false;
         data.meanVisible = false;
         data.medianVisible = false;
-        let index = this.state.loadedData.findIndex(data => {
-            return data.id === algorithmName && data.graphSize === graphSize;
+        let index = this.state.loadedData.findIndex(d => {
+            return d.id === algorithmName && d.graphSize === graphSize;
         });
         let loadedData = this.state.loadedData;
         loadedData[index] = data;
@@ -119,8 +104,8 @@ export class DataPlot extends Component {
             default:
                 data.visible = !data.visible;
         }
-        let index = this.state.loadedData.findIndex(data => {
-            return data.id === algorithmName && data.graphSize === graphSize;
+        let index = this.state.loadedData.findIndex(d => {
+            return d.id === algorithmName && d.graphSize === graphSize;
         });
         let loadedData = this.state.loadedData;
         loadedData[index] = data;
@@ -141,15 +126,23 @@ export class DataPlot extends Component {
     }
 
     componentDidMount() {
-        client.auth
-            .loginWithCredential(new AnonymousCredential())
-            .then(() => this.loadData('cetal', 16))
-            .catch(error => {
-                console.log(error);
-                this.setState({
-                    error: error
-                })
+        this.loginAnonymous()
+            .then(() => {
+                let client = realm.currentUser.mongoClient("hamilton-cycles-atlas");
+                this.setState({db: client.db("hamiltoncycles")});
+                this.loadData('cetal', 16)
             });
+    }
+
+    async loginAnonymous() {
+        // Create an anonymous credential
+        const credentials = Realm.Credentials.anonymous();
+        try {
+            // Authenticate the user
+            return await realm.logIn(credentials);
+        } catch (err) {
+            console.error("Failed to log in", err);
+        }
     }
 
     overlayCloseHandler() {
@@ -173,15 +166,17 @@ export class DataPlot extends Component {
                 <PlotArea loadedData={this.state.loadedData} overlayOpener={this.overlayOpener}/>
                 <PlotMenu>
                     <LoadScatterPlotDataComponent isLoading={this.state.isLoading}
-                                                  errorLoadingData={this.state.errorLoadingData}
-                                                  loadDataFunction={this.loadData}/>
+                        errorLoadingData={this.state.errorLoadingData}
+                        loadDataFunction={this.loadData}/>
                     <LoadedScatterPlotDataList loadedData={this.state.loadedData}
-                                               toggleVisibilityFunction={this.toggleVisibility}
-                                               hideAllDataFunction={this.hideAllData}/>
+                        toggleVisibilityFunction={this.toggleVisibility}
+                        hideAllDataFunction={this.hideAllData}/>
                 </PlotMenu>
-                {this.state.overlayOpen ? (<DetailOverlay closeHandler={this.overlayCloseHandler}
-                                                          graphSize={this.state.overlayGraphSize}
-                                                          graphID={this.state.overlayGraphID}/>) : ''}
+                {this.state.overlayOpen ? (<DetailOverlay
+                    db={this.state.db}
+                    closeHandler={this.overlayCloseHandler}
+                    graphSize={this.state.overlayGraphSize}
+                    graphID={this.state.overlayGraphID}/>) : ''}
             </Window>
         )
     }
