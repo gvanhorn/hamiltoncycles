@@ -130,8 +130,13 @@ export class DataPlot extends Component {
             .then(() => {
                 let client = realm.currentUser.mongoClient("hamilton-cycles-atlas");
                 this.setState({db: client.db("hamiltoncycles")});
-                this.loadData('cetal', 16)
             });
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!prevState.db && this.state.db) {
+            this.loadData('cetal', 16)
+        }
     }
 
     async loginAnonymous() {

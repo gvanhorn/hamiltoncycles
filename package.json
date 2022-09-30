@@ -4,13 +4,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "crypto-browserify": "^3.12.0",
-    "d3": "5.16.0",
+    "d3": "7.6.1",
     "node-sass": "^7.0.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-loading": "^2.0.3",
-    "react-scripts": "^5.0.0",
+    "react-scripts": "^5.0.1",
     "realm-web": "^1.7.0",
     "save-svg-as-png": "^1.4.17",
     "stream": "^0.0.2",
@@ -19,7 +18,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "chmod +x ./fix-crypto-dependency.sh; ./fix-crypto-dependency.sh",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

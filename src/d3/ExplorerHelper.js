@@ -145,27 +145,27 @@ export const removeHamiltonCycle = function removeHamiltonCycle () {
   d3.selectAll(".link").attr('stroke', 'grey').attr('stroke-width', '1');
 };
 
-function dblclick (d) {
-  if (!d3.event.active) {
+function dblclick (event, d) {
+  if (!event.active) {
     d.fx = d.fy = null;
   }
 }
 
-function dragstarted (d) {
-  if (!d3.event.active) {
+function dragstarted (event, d) {
+  if (event) {
     force.alphaTarget(0.3).restart();
   }
   d.fx = d.x;
   d.fy = d.y;
 }
 
-function dragged (d) {
-  d.fx = d3.event.x;
-  d.fy = d3.event.y;
+function dragged (event, d) {
+  d.fx = event.x;
+  d.fy = event.y;
 }
 
-function dragended (d) {
-  if (!d3.event.active) {
+function dragended (event, d) {
+  if (!event) {
     force.alphaTarget(0);
   }
 }

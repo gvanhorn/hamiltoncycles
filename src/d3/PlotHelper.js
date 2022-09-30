@@ -14,7 +14,9 @@ const xMap = function (result) {
 const yMap = function (result) {
     return getYScale()(result['relativeCost'] + 0.01);
 };
-export const colorScale = d3.scaleOrdinal().domain(["true", "false", "null"]).range(["#33cc33", "#ff0000", "#0000ff"]);
+export const colorScale = d3.scaleOrdinal()
+    .domain([ "true", "false", "null"])
+    .range(["#ff0000", "#33cc33", "#0000ff"]);
 
 const meanLine = d3.line()
     .x(function (d) {
@@ -97,8 +99,8 @@ export const canvasSetup = function canvasSetup(overlayOpener) {
     lineContainer = svg.append("g");
 };
 
-function canvasClickHandler() {
-    let mouse = d3.mouse(this);
+function canvasClickHandler(event) {
+    let mouse = d3.pointer(event, this);
     let closest = quadTree.find(mouse[0], mouse[1], scatterPointRadius);
     if (closest) {
         overlayOpenFunction(closest['graphSize'], closest['graphID']);
